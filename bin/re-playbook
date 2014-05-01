@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+
+######################################################################
+# Colorize all the things
+######################################################################
+
+declare -A COLORS
+
+COLORS[RESTORE]='\033[0m'
+COLORS[RED]='\033[00;31m'
+COLORS[GREEN]='\033[00;32m'
+COLORS[YELLOW]='\033[00;33m'
+COLORS[BLUE]='\033[00;34m'
+COLORS[PURPLE]='\033[00;35m'
+COLORS[CYAN]='\033[00;36m'
+COLORS[LIGHTGRAY]='\033[00;37m'
+COLORS[LRED]='\033[01;31m'
+COLORS[LGREEN]='\033[01;32m'
+COLORS[LYELLOW]='\033[01;33m'
+COLORS[LBLUE]='\033[01;34m'
+COLORS[LPURPLE]='\033[01;35m'
+COLORS[LCYAN]='\033[01;36m'
+COLORS[WHITE]='\033[01;37m'
+
+colorize() {
+    # $1 = a COLOR from the table above ^
+    # $2 = a quoted string to print out in COLOR
+    #
+    # NOTE: 'colorize' doesn't print trailing new lines, ergo you may
+    # use it inline:
+    #
+    #    $ echo "black stuff, `colorize GREEN 'green stuff'`, more black stuff
+    echo -en "${COLORS[RESTORE]}${COLORS[${1}]}${2}${COLORS[RESTORE]}"
+}
+
+######################################################################
+# Constants. Gimme sum.
+######################################################################
+ENDPOINT=":8000/api/v0"
+if [ -z "${REREST}" ]; then
+    read -e -p "rerest endpoint hostname: " REREST
+fi
+CONTENT="-H 'Content-Type: application/json'"
+PUT="-X PUT"
+GET="-X GET"
+POST="-X POST"
+DEL="-X DELETE"
+
+######################################################################
+# Some people need help
+######################################################################
+
+function help() {
+cat <<EOF
+
+usage: re-playbook { list | edit } {FILTER}
+
+Actions:
+  list      List playbooks matching FILTER
+  edit      Edit playbook matching FILTER
+
+FILTER Options:
+  --project PROJECT      Name of PROJECT to match. Use "quotes" if
+                         the name includes spaces.
+
+NOT IMPLEMENTED Options:
+  --id           ID of a specific playbook. Should be 24
+                 characters long.
+
+EOF
+}
+
+######################################################################
+# LIST PROJECTS
+######################################################################
+
+function list() {
+    local project=""
+    local id=""
+
+    while [ -n "${1}" ]; do
+	ARG=${1}
+	shift
+	if [[ $ARG == "--project" ]]; then
+	    project=$1
+	    shift
+	else
+	    echo `colorize RED "Invalid option to LIST: ${ARG}"`
+	    exit 1
+	fi
+    done
+    echo `colorize GREEN 'Listing Playbooks'`
+    p_esc=`echo ${project} | sed 's/ /%20/g'`
+    echo "interpreted input as: re-playbook list --project \"${p_esc}\""
+    curl -u r:h $GET ${REREST}${ENDPOINT}/${p_esc}/playbook/
+
+    echo
+    echo
+    echo `colorize 'YELLOW' "export REREST=${REREST} to avoid having to do this again"`
+}
+
+######################################################################
+# EDIT A PROJECT
+######################################################################
+
+function edit() {
+    echo `colorize GREEN 'Editing Playbook'`
+}
+
+######################################################################
+# People need help
+######################################################################
+
+if [ -z "${1}" ]; then
+    help
+fi
+
+######################################################################
+# Parse args
+######################################################################
+
+while [ -n "${1}" ]; do
+    ARG=${1}
+    shift
+
+    if [[ $ARG == "list" ]]; then
+	list "$@"
+	break
+    elif [[ $ARG == "edit" ]]; then
+	edit "$@"
+	break
+    else
+	echo `colorize RED "Invalid option: ${ARG}"`
+	help
+	break
+    fi
+done
