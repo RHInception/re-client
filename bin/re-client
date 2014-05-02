@@ -24,6 +24,8 @@ def repl(args):
         cmds()
         try:
             action = int(raw_input("command>> "))
+        except KeyboardInterrupt, ke:
+            raise ke
         except:
             continue
 
