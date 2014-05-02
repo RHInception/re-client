@@ -1,50 +1,48 @@
 #!/usr/bin/env python
-import urllib2
-import os
-try:
-    import json
-except ImportError:
-    import simplejson as json
-import base64
 import readline
-
-"""
-Handles basic HTTP authentication to the rerest endpoint.
-"""
-
-class ReClient(object):
-    def __init__(self):
-        self.conf_file = os.path.expanduser('~/.rerest.conf')
-        self._config()
-
-    def _config(self):
-        """Get the endpoint configuration"""
-        username = "foo"
-        password = "bar"
-        self.auth_header = base64.encodestring('%s:%s' % (username, password))[:-1]
-        with open(self.conf_file, 'r') as config:
-            self.baseurl = config.read()
-        self.endpoint = "%s/api/v0/" % self.baseurl
-
-    def run(self):
-        """
-        Make an API call to get the requested item. Store the results.
-        """
-        req = urllib2.Request(self.endpoint + "example%20project/playbook/")
-        req.add_header("Authorization", "Basic %s" % self.auth_header)
-        response = urllib2.urlopen(req)
-        print response.read()
-
+from reclient import ReClient
+import os
 
 conf_file = os.path.expanduser('~/.rerest.conf')
-if not os.path.exists(conf_file):
-    print "Could not load base rerest url from %s" % conf_file
-    print "Enter the base url (http://.......:PORT) for your rerest endpoint"
-    print "This will be saved in %s for reuse later" % conf_file
-    baseurl = raw_input("Base Url: ")
 
-    with open(conf_file, 'w') as _config:
-        _config.write(baseurl)
+def cmds():
+    print """
+1) Get a all playbooks for a project
+2) Get a single playbook for a project
+3) Update a playbook
+4) Delete a playbook
+5) Create a new playbook"""
 
-r = ReClient()
-r.run()
+def repl():
+    with open(conf_file, 'r') as config:
+        baseurl = config.read()
+
+    reclient = ReClient(baseurl)
+    while True:
+        cmds()
+        action = int(raw_input("command>> "))
+
+        if action == 1:
+            project = raw_input("Project: ")
+            reclient.get_all_playbooks(project)
+        elif action == 2:
+            project = raw_input("Project: ")
+            pb_id = raw_input("Playbook ID: ")
+            reclient.view_file(project, pb_id)
+        elif action == 3:
+            project = raw_input("Project: ")
+            pb_id = raw_input("Playbook ID: ")
+            reclient.edit_playbook(project, pb_id)
+
+
+if __name__ == '__main__':
+    if not os.path.exists(conf_file):
+        print "Could not load base rerest url from %s" % conf_file
+        print "Enter the base url (http://.......:PORT) for your rerest endpoint"
+        print "This will be saved in %s for reuse later" % conf_file
+        baseurl = raw_input("Base Url: ")
+
+        with open(conf_file, 'w') as _config:
+            _config.write(baseurl)
+
+    repl()
