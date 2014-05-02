@@ -47,7 +47,12 @@ written out to.
         pb_blob = result.json()['item']
         # Write it out to a temporary file
         pb_fp = reclient.utils.temp_json_blob(pb_blob)
-        return (result.json(), pb_fp)
+        return (result.json()['item'], pb_fp)
+
+    def _send_playbook(self, project, pb_id, pb_fp):
+        suffix = "%s/playbook/%s/" % (project, pb_id)
+        with open(pb_fp.name, 'r') as pb_open:
+            return self.connector.post(suffix, data=pb_open)
 
     def view_file(self, project, pb_id):
         (pb, path) = self._get_playbook(project, pb_id)
@@ -55,4 +60,16 @@ written out to.
 
     def edit_playbook(self, project, pb_id):
         (pb, path) = self._get_playbook(project, pb_id)
-        reclient.utils.edit_playbook(pb)
+        pb_fp = reclient.utils.edit_playbook(path)
+        while True:
+            send_back = raw_input("Upload [N/y]? ")
+            if send_back.lower() == 'y':
+                try:
+                    self._send_playbook(project, pb_id, pb_fp)
+                except IOError, ioe:
+                    raise ioe
+                finally:
+                    break
+            elif send_back.lower() == 'n':
+                print "OK. Your loss."
+                break
