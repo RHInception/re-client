@@ -54,4 +54,5 @@ written out to.
         reclient.utils.less_file(path.name)
 
     def edit_playbook(self, project, pb_id):
-        pass
+        (pb, path) = self._get_playbook(project, pb_id)
+        reclient.utils.edit_playbook(pb)
