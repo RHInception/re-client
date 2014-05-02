@@ -1,19 +1,43 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright © 2014 SEE AUTHORS FILE
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import readline
 from reclient import ReClient
 import os
 import argparse
-
+import atexit
 
 conf_file = os.path.expanduser('~/.rerest.conf')
+try:
+    histfile = os.path.expanduser('~/.reclienthist')
+    readline.read_history_file(histfile)
+except IOError:
+    pass
+
 
 def cmds():
     print """
+0) Get all playbooks ever
 1) Get a all playbooks for a project
 2) Get a single playbook for a project
 3) Update a playbook
 4) Delete a playbook
 5) Create a new playbook"""
+
 
 def repl(args):
     with open(conf_file, 'r') as config:
@@ -29,7 +53,9 @@ def repl(args):
         except:
             continue
 
-        if action == 1:
+        if action == 0:
+            reclient.get_all_playbooks_ever()
+        elif action == 1:
             if args.project is None:
                 project = raw_input("Project: ")
             else:
@@ -73,5 +99,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--id', required=False,
                         default=None, help='Set default playbook ID')
     args = parser.parse_args()
+
+    atexit.register(readline.write_history_file, histfile)
 
     repl(args)

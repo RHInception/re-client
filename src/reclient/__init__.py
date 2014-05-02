@@ -1,9 +1,28 @@
+# -*- coding: utf-8 -*-
+# Copyright © 2014 SEE AUTHORS FILE
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 from reclient.connectors import Connectors
 import reclient.utils
+import json
 
 """
 Handles basic HTTP authentication to the rerest endpoint.
 """
+
 
 class ReClient(object):
     def __init__(self, baseurl, version='v0'):
@@ -22,11 +41,17 @@ class ReClient(object):
             "baseurl": self.endpoint
         })
 
+    def get_all_playbooks_ever(self):
+        """Get ALL THE PLAYBOOKS"""
+        suffix = "playbooks/"
+        result = self.connector.get(suffix)['items']
+        view_file = reclient.utils.temp_json_blob(result)
+        reclient.utils.less_file(view_file.name)
+
     def get_all_playbooks(self, project):
         """
         Get all playbooks that match `project`
         """
-        project = project.replace(' ', '%20')
         suffix = "%s/playbook/" % project
         result = self.connector.get(suffix)
         print "[%s] - %s" % (result.status_code,
