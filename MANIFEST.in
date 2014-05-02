@@ -1,0 +1,3 @@
+include requirements.txt setup.py README.md AUTHORS LICENSE
+graft src/reclient
+
