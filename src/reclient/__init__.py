@@ -41,21 +41,6 @@ class ReClient(object):
             "baseurl": self.endpoint
         })
 
-    def get_all_playbooks_ever(self):
-        """Get ALL THE PLAYBOOKS"""
-        suffix = "playbooks/"
-        result = self.connector.get(suffix)
-        view_file = reclient.utils.temp_json_blob(result.json())
-        reclient.utils.less_file(view_file.name)
-
-    def get_all_playbooks(self, project):
-        """
-        Get all playbooks that match `project`
-        """
-
-        (path, pb_fp) = self._get_playbook(project)
-        reclient.utils.less_file(pb_fp.name)
-
     def _get_playbook(self, project, pb_id=None):
         """project - name of the project to search for playbook with id
 'pb_id'. Omit pb_id and you get all playbooks for 'project'.
@@ -72,10 +57,13 @@ written out to.
             suffix = "%s/playbook/%s/" % (project, pb_id)
 
         result = self.connector.get(suffix)
-        pb_blob = result.json()
-        # Write it out to a temporary file
-        pb_fp = reclient.utils.temp_json_blob(pb_blob)
-        return (pb_blob, pb_fp)
+        if result.status_code == 200:
+            pb_blob = result.json()
+            # Write it out to a temporary file
+            pb_fp = reclient.utils.temp_json_blob(pb_blob)
+            return (pb_blob, pb_fp)
+        else:
+            raise ReClientGETError(result)
 
     def _send_playbook(self, project, pb_fp, pb_id=None):
         """Send a playbook to the REST endpoint. Note the ordering of the
@@ -110,16 +98,42 @@ existing playbook.
         else:
             print "[%d] Unexpected response from rerest endpoint" % (
                 code)
-        print result.text
+            raise ReClientSendError(result)
 
+        print result.text
         return result
+
+    def get_all_playbooks_ever(self):
+        """Get ALL THE PLAYBOOKS"""
+        suffix = "playbooks/"
+        result = self.connector.get(suffix)
+        view_file = reclient.utils.temp_json_blob(result.json())
+        reclient.utils.less_file(view_file.name)
+
+    def get_all_playbooks(self, project):
+        """
+        Get all playbooks that match `project`
+        """
+        try:
+            (path, pb_fp) = self._get_playbook(project)
+        except REClientGETError, e:
+            print "Error while attempting to get playbooks for project: %s" % (
+                project)
+            raise e
+        reclient.utils.less_file(pb_fp.name)
 
     def view_file(self, project, pb_id):
         """
         Open playbook with id `pd_id` in `project` with the /bin/less command
         """
-        (pb, path) = self._get_playbook(project, pb_id)
-        reclient.utils.less_file(path.name)
+        try:
+            (pb, path) = self._get_playbook(project, pb_id)
+        except ReClientGETError, e:
+            print "Error while attempting to find '%s' for project '%s'" % (
+                pb_id, project)
+            print "Are you sure it exists?"
+        else:
+            reclient.utils.less_file(path.name)
 
     def edit_playbook(self, project, pb_id):
         (pb, path) = self._get_playbook(project, pb_id)
@@ -131,10 +145,15 @@ existing playbook.
                     result = self._send_playbook(project, pb_fp, pb_id)
                 except IOError, ioe:
                     raise ioe
+                except ReClientSendError, rcse:
+                    print "Error while sending updated playbook: %s" % (
+                        str(rcse))
                 finally:
                     break
             elif send_back.lower() == 'n':
-                print "OK. Your loss."
+                print "Not sending back. Playbook will be saved in %s" % (
+                    pb_fp.name)
+                print "until this program is closed."
                 break
 
     def delete_playbook(self, project, pb_id):
@@ -155,3 +174,12 @@ existing playbook.
         pb_fp = reclient.utils.temp_json_blob(pb)
         reclient.utils.edit_playbook(pb_fp)
         self._send_playbook(project, pb_fp)
+
+class ReClientError(Exception):
+    pass
+
+class ReClientGETError(ReClientError):
+    pass
+
+class ReClientSendError(ReClientError):
+    pass
