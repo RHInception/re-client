@@ -23,7 +23,7 @@ At this point you would enter the URL (with port if necessary) to your
     Base Url: http://rerest.example.com:8000
 
     0) Get all playbooks ever
-    1) Get a all playbooks for a project
+    1) Get all playbooks for a project
     2) Get a single playbook for a project
     3) Update a playbook
     4) Delete a playbook

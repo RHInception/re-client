@@ -52,27 +52,30 @@ class ReClient(object):
         """
         Get all playbooks that match `project`
         """
-        suffix = "%s/playbook/" % project
-        result = self.connector.get(suffix)
-        print "[%s] - %s" % (result.status_code,
-                             result.json())
 
-    def _get_playbook(self, project, pb_id):
-        """project - name of the project to search for playbook with id 'pb_id'
+        (path, pb_fp) = self._get_playbook(project)
+        reclient.utils.less_file(pb_fp.name)
+
+    def _get_playbook(self, project, pb_id=None):
+        """project - name of the project to search for playbook with id
+'pb_id'. Omit pb_id and you get all playbooks for 'project'.
 
 Return a two-tuple of the serialized datastructure, as well as a
-reference to tthe tempfile.NamedTemporaryFile object it has been
+reference to the tempfile.NamedTemporaryFile object it has been
 written out to.
         """
-        suffix = "%s/playbook/%s/" % (project, pb_id)
-        # Make REST call to fetch the playbook
+        if pb_id is None:
+            # Get all playbooks for 'project'
+            suffix = "%s/playbook/" % project
+        else:
+            # Get a single playbook
+            suffix = "%s/playbook/%s/" % (project, pb_id)
+
         result = self.connector.get(suffix)
-        # We get a hash back, part of it is the status code. Lets just
-        # get straight to the playbook in 'item'
-        pb_blob = result.json()['item']
+        pb_blob = result.json()
         # Write it out to a temporary file
         pb_fp = reclient.utils.temp_json_blob(pb_blob)
-        return (result.json()['item'], pb_fp)
+        return (pb_blob, pb_fp)
 
     def _send_playbook(self, project, pb_fp, pb_id=None):
         """Send a playbook to the REST endpoint. Note the ordering of the
