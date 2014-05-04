@@ -32,7 +32,6 @@ thing' either way"""
 
     tmpfile = tempfile.NamedTemporaryFile(mode='w',
                                           suffix=".json",
-                                          delete=False,
                                           prefix="reclient-")
     json.dump(data, tmpfile, indent=4)
     tmpfile.flush()
