@@ -22,6 +22,7 @@ import argparse
 import atexit
 
 conf_file = os.path.expanduser('~/.rerest.conf')
+readline.parse_and_bind("tab: complete")
 try:
     histfile = os.path.expanduser('~/.reclienthist')
     readline.read_history_file(histfile)
@@ -54,14 +55,17 @@ def repl(args):
             continue
 
         if action == 0:
+            # ALL PLAYBOOKS
             reclient.get_all_playbooks_ever()
         elif action == 1:
+            # ALL PLAYBOOKS FOR A PROJECT
             if args.project is None:
                 project = raw_input("Project: ")
             else:
                 project = args.project
             reclient.get_all_playbooks(project)
         elif action == 2:
+            # GET A SINGLE PLAYBOOK FOR A PROJECT
             if args.project is None:
                 project = raw_input("Project: ")
             else:
@@ -72,6 +76,7 @@ def repl(args):
                 pb_id = args.id
             reclient.view_file(project, pb_id)
         elif action == 3:
+            # UPDATE A PLAYBOOK
             if args.project is None:
                 project = raw_input("Project: ")
             else:
@@ -81,7 +86,24 @@ def repl(args):
             else:
                 pb_id = args.id
             reclient.edit_playbook(project, pb_id)
-
+        elif action == 4:
+            # DELETE A PLAYBOOK
+            if args.project is None:
+                project = raw_input("Project: ")
+            else:
+                project = args.project
+            if args.id is None:
+                pb_id = raw_input("Playbook ID: ")
+            else:
+                pb_id = args.id
+            reclient.delete_playbook(project, pb_id)
+        elif action == 5:
+            # CREATE A NEW PLAYBOOK
+            if args.project is None:
+                project = raw_input("Project: ")
+            else:
+                project = args.project
+            reclient.new_playbook(project)
 
 if __name__ == '__main__':
     if not os.path.exists(conf_file):

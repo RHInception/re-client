@@ -19,12 +19,12 @@ from reclient.connectors import Connectors
 import reclient.utils
 import json
 
-"""
-Handles basic HTTP authentication to the rerest endpoint.
-"""
+"""Handles basic HTTP authentication and calls to the rerest
+endpoint."""
 
 
 class ReClient(object):
+
     def __init__(self, baseurl, version='v0'):
         self.v = version
         self.baseurl = baseurl
@@ -44,8 +44,8 @@ class ReClient(object):
     def get_all_playbooks_ever(self):
         """Get ALL THE PLAYBOOKS"""
         suffix = "playbooks/"
-        result = self.connector.get(suffix)['items']
-        view_file = reclient.utils.temp_json_blob(result)
+        result = self.connector.get(suffix)
+        view_file = reclient.utils.temp_json_blob(result.json())
         reclient.utils.less_file(view_file.name)
 
     def get_all_playbooks(self, project):
@@ -74,12 +74,47 @@ written out to.
         pb_fp = reclient.utils.temp_json_blob(pb_blob)
         return (result.json()['item'], pb_fp)
 
-    def _send_playbook(self, project, pb_id, pb_fp):
-        suffix = "%s/playbook/%s/" % (project, pb_id)
-        with open(pb_fp.name, 'r') as pb_open:
-            return self.connector.post(suffix, data=pb_open)
+    def _send_playbook(self, project, pb_fp, pb_id=None):
+        """Send a playbook to the REST endpoint. Note the ordering of the
+args/kwargs as they're ordered differently than most other methods.
+
+`pb_fp` - File pointer to a playbook file
+`pb_id` - OPTIONAL - if 'None' then this is interpreted as a NEW
+playbook. If not 'None' then this is interpreted as an update to an
+existing playbook.
+        """
+        if pb_id:
+            # UPDATE
+            print "Updating an existing playbook"
+            suffix = "%s/playbook/%s/" % (project, pb_id)
+            with open(pb_fp.name, 'r') as pb_open:
+                result = self.connector.post(suffix, data=pb_open)
+        else:
+            # NET-NEW
+            print "Sending a new playbook"
+            suffix = "%s/playbook/" % project
+            with open(pb_fp.name, 'r') as pb_open:
+                result = self.connector.put(suffix, data=pb_open)
+
+        code = result.status_code
+        # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+        if code == 200:
+            # 200 = "OK" - Updated a playbook
+            print "[%d] Updated playbook" % code
+        elif code == 201:
+            # 201 = "Created";
+            print "[%d] Created new playbook" % code
+        else:
+            print "[%d] Unexpected response from rerest endpoint" % (
+                code)
+        print result.text
+
+        return result
 
     def view_file(self, project, pb_id):
+        """
+        Open playbook with id `pd_id` in `project` with the /bin/less command
+        """
         (pb, path) = self._get_playbook(project, pb_id)
         reclient.utils.less_file(path.name)
 
@@ -90,7 +125,7 @@ written out to.
             send_back = raw_input("Upload [N/y]? ")
             if send_back.lower() == 'y':
                 try:
-                    self._send_playbook(project, pb_id, pb_fp)
+                    result = self._send_playbook(project, pb_fp, pb_id)
                 except IOError, ioe:
                     raise ioe
                 finally:
@@ -98,3 +133,22 @@ written out to.
             elif send_back.lower() == 'n':
                 print "OK. Your loss."
                 break
+
+    def delete_playbook(self, project, pb_id):
+        suffix = "%s/playbook/%s/" % (project, pb_id)
+        result = self.connector.delete(suffix)
+        return result
+
+    def new_playbook(self, project):
+        suffix = "%s/playbook/" % project
+        pb = {
+            "project": project,
+            "ownership": {
+                "id": None,
+                "contact": None
+            },
+            "steps": []
+        }
+        pb_fp = reclient.utils.temp_json_blob(pb)
+        reclient.utils.edit_playbook(pb_fp)
+        self._send_playbook(project, pb_fp)

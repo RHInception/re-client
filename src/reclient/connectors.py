@@ -19,7 +19,7 @@ import requests
 
 
 class Connectors(object):
-    def __init__(self, connect_params):
+    def __init__(self, connect_params, reclient_version='0.0.0'):
         """
         connect_params.keys() = ['name', 'password', 'baseurl']
         """
@@ -27,12 +27,10 @@ class Connectors(object):
         self.auth = (connect_params['name'], connect_params['password'])
         auth_header = base64.encodestring('%s:%s' % self.auth)[:-1]
         self.headers = {
-            'content-type': 'application/json',
-            "Authorization": "Basic %s" % auth_header
+            "content-type": "application/json",
+            "Authorization": "Basic %s" % auth_header,
+            "User-Agent": "reclient/%s" % reclient_version
         }
-        # print self.baseurl
-        # print self.headers
-        # print self.auth
 
     def delete(self, url=""):
         url = self.baseurl + url
