@@ -22,6 +22,7 @@ At this point you would enter the URL (with port if necessary) to your
 
     Base Url: http://rerest.example.com:8000
 
+    0) Get all playbooks ever
     1) Get a all playbooks for a project
     2) Get a single playbook for a project
     3) Update a playbook
@@ -40,14 +41,13 @@ The ``re-client`` command accepts two optional parameters:
 
 ### Example
 
-Lets with with **example project** for the duration of this session:
+Lets work with **example project** for the duration of this session:
 
     $ ./bin/re-client -p 'example project'
 
 
 # Misc.
 
-The REPL (command loop) has **readline** history enabled
-per-session. In the future this will hopefully become persistent
-across sessions. This means the up/down arrow keys work and you can
-edit lines of input **like a boss**.
+The REPL (command loop) has **readline** history enabled. This means
+the up/down arrow keys work and you can edit lines of input **like a
+boss**.
