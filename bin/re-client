@@ -37,8 +37,8 @@ def cmds():
 2) Get a single playbook for a project
 3) Update a playbook
 4) Delete a playbook
-5) Create a new playbook"""
-
+5) Create a new playbook
+6) Quit"""
 
 def repl(args):
     with open(conf_file, 'r') as config:
@@ -104,6 +104,9 @@ def repl(args):
             else:
                 project = args.project
             reclient.new_playbook(project)
+        elif action == 6:
+            # Quit
+            raise SystemExit
 
 if __name__ == '__main__':
     if not os.path.exists(conf_file):
