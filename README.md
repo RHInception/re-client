@@ -28,6 +28,7 @@ At this point you would enter the URL (with port if necessary) to your
     3) Update a playbook
     4) Delete a playbook
     5) Create a new playbook
+    6) Quit
     command>>
 
 Release Engine Client Tools are now setup and ready to use.
