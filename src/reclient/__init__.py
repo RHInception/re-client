@@ -116,7 +116,7 @@ existing playbook.
         """
         try:
             (path, pb_fp) = self._get_playbook(project)
-        except REClientGETError, e:
+        except ReClientGETError, e:
             print "Error while attempting to get playbooks for project: %s" % (
                 project)
             raise e
