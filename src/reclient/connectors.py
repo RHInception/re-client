@@ -16,7 +16,8 @@
 
 import base64
 import requests
-
+import logging
+out = logging.getLogger('reclient')
 
 class Connectors(object):
     def __init__(self, connect_params, reclient_version='0.0.0'):
@@ -34,16 +35,22 @@ class Connectors(object):
 
     def delete(self, url=""):
         url = self.baseurl + url
+        out.debug("DELETE request send to: %s" % url)
         return requests.delete(url, headers=self.headers, verify=False)
 
     def get(self, url=""):
         url = self.baseurl + url
+        out.debug("GET request send to: %s" % url)
         return requests.get(url, headers=self.headers, verify=False)
 
     def post(self, url="", data={}):
         url = self.baseurl + url
+        out.debug("POST request send to: %s" % url)
+        out.debug("Data: %s" % str(data))
         return requests.post(url, data, headers=self.headers, verify=False)
 
     def put(self, url="", data={}):
         url = self.baseurl + url
+        out.debug("PUT request send to: %s" % url)
+        out.debug("Data: %s" % str(data))
         return requests.put(url, data, headers=self.headers, verify=False)

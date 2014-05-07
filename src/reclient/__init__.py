@@ -18,15 +18,18 @@
 from reclient.connectors import Connectors
 import reclient.utils
 import json
+import logging
 
 """Handles basic HTTP authentication and calls to the rerest
 endpoint."""
 
+out = logging.getLogger('recore')
 
 class ReClient(object):
 
-    def __init__(self, baseurl, version='v0'):
+    def __init__(self, baseurl, version='v0', debug=1):
         self.v = version
+        self.debug = debug
         self.baseurl = baseurl
         self._config()
 
@@ -52,13 +55,16 @@ written out to.
         if pb_id is None:
             # Get all playbooks for 'project'
             suffix = "%s/playbook/" % project
+            key = "items"
         else:
             # Get a single playbook
             suffix = "%s/playbook/%s/" % (project, pb_id)
+            key = "item"
 
         result = self.connector.get(suffix)
         if result.status_code == 200:
-            pb_blob = result.json()
+            pb_blob = result.json()[key]
+
             # Write it out to a temporary file
             pb_fp = reclient.utils.temp_json_blob(pb_blob)
             return (pb_blob, pb_fp)
@@ -139,8 +145,9 @@ existing playbook.
         (pb, path) = self._get_playbook(project, pb_id)
         pb_fp = reclient.utils.edit_playbook(path)
         while True:
-            send_back = raw_input("Upload [N/y]? ")
-            if send_back.lower() == 'y':
+            #send_back = raw_input("Upload [N/y] ('d' for diff)? ")
+            send_back = raw_input("Upload [Y/n]? ")
+            if send_back.lower() == 'y' or send_back.strip() == '':
                 try:
                     result = self._send_playbook(project, pb_fp, pb_id)
                 except IOError, ioe:
@@ -150,6 +157,9 @@ existing playbook.
                         str(rcse))
                 finally:
                     break
+            # elif send_back.lower() == 'd':
+            #     orig = reclient.utils.temp_json_blob(pb)
+            #     reclient.utils.differ(orig, pb_fp)
             elif send_back.lower() == 'n':
                 print "Not sending back. Playbook will be saved in %s" % (
                     pb_fp.name)

@@ -20,6 +20,7 @@ from reclient import ReClient
 import os
 import argparse
 import atexit
+import logging
 
 conf_file = os.path.expanduser('~/.reclient.conf')
 readline.parse_and_bind("tab: complete")
@@ -44,7 +45,7 @@ def repl(args):
     with open(conf_file, 'r') as config:
         baseurl = config.read()
 
-    reclient = ReClient(baseurl)
+    reclient = ReClient(baseurl, debug=args.debug)
     while True:
         cmds()
         try:
@@ -120,11 +121,25 @@ if __name__ == '__main__':
             _config.write(hostname)
 
     parser = argparse.ArgumentParser(description='Release Engine Client Utility')
+    parser.add_argument('-d', '--debug', action='store_true',
+                        default=False, help='Enable REST debugging')
     parser.add_argument('-p', '--project', required=False,
                         default=None, help='Set default project')
     parser.add_argument('-i', '--id', required=False,
                         default=None, help='Set default playbook ID')
     args = parser.parse_args()
+
+    out = logging.getLogger('reclient')
+    if args.debug:
+        _level = 'DEBUG'
+    else:
+        _level = 'INFO'
+
+    out.setLevel(_level)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    out.addHandler(handler)
+    out.debug("Logging set to: %s" % _level)
 
     atexit.register(readline.write_history_file, histfile)
 

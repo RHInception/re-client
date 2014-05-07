@@ -18,14 +18,18 @@ import os
 from subprocess import call
 import tempfile
 import json
+import logging
+import difflib
 
+out = logging.getLogger('reclient')
 
 def temp_json_blob(data):
     """data is either a string or a hash. Function will 'do the right
 thing' either way"""
+    out.debug("tmp_json_blob received [%s]: %s" % (type(data), str(data)))
     if type(data) in [unicode, str]:
         data = json.loads(data)
-    elif type(data) == dict:
+    elif type(data) == dict or type(data) == list:
         pass
     else:
         raise ValueError("This isn't something I can work with")
@@ -37,6 +41,10 @@ thing' either way"""
     tmpfile.flush()
     return tmpfile
 
+# def differ(orig, new):
+#     """Diff two documents and open in 'less'. 'orig' and 'new' should be
+#     file pointers"""
+#     d = difflib.Differ()
 
 def edit_playbook(blob):
     """Edit the playbook object 'blob'.
