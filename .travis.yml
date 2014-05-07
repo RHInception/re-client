@@ -5,7 +5,10 @@ install:
     - "pip install -r requirements.txt --use-mirrors"
     - "pip install pep8 nose coverage mock"
 script:
-    - "pep8 src/"
+    - "pep8 --ignore=E501 src/ bin/"
     - "nosetests -v --with-cover --cover-min-percentage=80 --cover-package=reclient test/"
 notifications:
     email: false
+branches:
+    only:
+        - master
