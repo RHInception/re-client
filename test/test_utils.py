@@ -44,7 +44,7 @@ class TestUtils(TestCase):
             assert json.load(open(tmp_file.name))
 
         # A playbook must be a dictionary, string or unicode
-        for bad in (object(), []):
+        for bad in (object(), 10):
             self.assertRaises(ValueError, utils.temp_json_blob, bad)
 
     def test_edit_playbook(self):
