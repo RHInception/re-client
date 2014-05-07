@@ -19,7 +19,7 @@ from subprocess import call
 import tempfile
 import json
 import logging
-#import difflib
+# import difflib
 
 out = logging.getLogger('reclient')
 
