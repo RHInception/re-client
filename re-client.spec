@@ -18,15 +18,15 @@ Url: https://github.com/rhinception/re-client
 
 BuildArch: noarch
 BuildRequires: python2-devel
-BuildRequires: python-nose
-%{?el6:BuildRequires: python-unittest2}
+# BuildRequires: python-nose
+# %{?el6:BuildRequires: python-unittest2}
 
 %description
 Utilities for interacting with the Release Engine. Supports creating,
 reading, updating, and deleting playbooks.
 
-%check
-nosetests -v
+# %check
+# nosetests -v
 
 %prep
 %setup -q
