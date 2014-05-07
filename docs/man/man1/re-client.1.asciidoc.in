@@ -32,6 +32,32 @@ Set default 'PROJECT'
 Set default playbook 'ID'
 
 
+COMMANDS
+--------
+Launching *re-client* brings you into a command prompt. There are
+several options to select from, they are self-explanatory:
+
+    0) Get all playbooks ever
+    1) Get all playbooks for a project
+    2) Get a single playbook for a project
+    3) Update a playbook
+    4) Delete a playbook
+    5) Create a new playbook
+    6) Quit
+
+The *re-client* prompt is *readline* enabled. This means it supports
+line editing and command history if your platform has *readline*
+support.
+
+The 'Get' commands display the requested documents in *less*. The
+'Update' and 'Create' commands launch an editor. If *EDITOR* is not
+defined in your shell the editor defaults to *emacs*. You can set
+this permenantly to something else by exporting *EDITOR* in your shell
+rc file:
+
+    # ~/.bashrc
+    export EDITOR=nano
+
 
 AUTHOR
 ------
@@ -47,7 +73,14 @@ This man page was originally written by Tim Bielawa
 
 FILES
 -----
-*~/reclient.conf* -- reclient configuration file
+*~/.reclient.conf*::
+reclient configuration file
+
+
+ENVIRONMENT VARIABLES
+---------------------
+*EDITOR*::
+Default editor choice when updating or creating new playbooks.
 
 
 COPYRIGHT

@@ -58,6 +58,40 @@ Set default
 Set default playbook
 \fIID\fR
 .RE
+.SH "COMMANDS"
+.sp
+Launching \fBre\-client\fR brings you into a command prompt\&. There are several options to select from, they are self\-explanatory:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+0) Get all playbooks ever
+1) Get all playbooks for a project
+2) Get a single playbook for a project
+3) Update a playbook
+4) Delete a playbook
+5) Create a new playbook
+6) Quit
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The \fBre\-client\fR prompt is \fBreadline\fR enabled\&. This means it supports line editing and command history if your platform has \fBreadline\fR support\&.
+.sp
+The \fIGet\fR commands display the requested documents in \fBless\fR\&. The \fIUpdate\fR and \fICreate\fR commands launch an editor\&. If \fBEDITOR\fR is not defined in your shell the editor defaults to \fBemacs\fR\&. You can set this permenantly to something else by exporting \fBEDITOR\fR in your shell rc file:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+# ~/\&.bashrc
+export EDITOR=nano
+.fi
+.if n \{\
+.RE
+.\}
 .SH "AUTHOR"
 .sp
 The Release Engine was originally written by the \fBInception\fR team at Red Hat\&.
@@ -66,8 +100,17 @@ See the AUTHORS file (or the git logs) for a complete list of contributors\&.
 .sp
 This man page was originally written by Tim Bielawa <tbielawa@redhat\&.com>\&.
 .SH "FILES"
-.sp
-\fB~/reclient\&.conf\fR \(em reclient configuration file
+.PP
+\fB~/\&.reclient\&.conf\fR
+.RS 4
+reclient configuration file
+.RE
+.SH "ENVIRONMENT VARIABLES"
+.PP
+\fBEDITOR\fR
+.RS 4
+Default editor choice when updating or creating new playbooks\&.
+.RE
 .SH "COPYRIGHT"
 .sp
 Copyright \(co 2014, Red Hat, Inc\&.\&.

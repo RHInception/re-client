@@ -1,3 +1,4 @@
 include requirements.txt setup.py README.md AUTHORS LICENSE
 graft src/reclient
+include docs/man/man1/re-client.1
 

@@ -18,15 +18,15 @@ Url: https://github.com/rhinception/re-client
 
 BuildArch: noarch
 BuildRequires: python2-devel
-# BuildRequires: python-nose
-# %{?el6:BuildRequires: python-unittest2}
+BuildRequires: python-nose
+%{?el6:BuildRequires: python-unittest2}
 
 %description
 Utilities for interacting with the Release Engine. Supports creating,
 reading, updating, and deleting playbooks.
 
-# %check
-# nosetests -v
+%check
+nosetests -v
 
 %prep
 %setup -q
@@ -36,11 +36,14 @@ reading, updating, and deleting playbooks.
 
 %install
 %{__python2} setup.py install -O1 --root=$RPM_BUILD_ROOT --record=re-client-files.txt
+mkdir -p $RPM_BUILD_ROOT/%{_mandir}/man1/
+cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 
 %files -f re-client-files.txt
 %dir %{python2_sitelib}/%{_pkg_name}
 %{_bindir}/re-client
 %doc README.md LICENSE AUTHORS
+%doc %{_mandir}/man1/re-client.1*
 
 %changelog
 * Wed May  7 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.1-1
