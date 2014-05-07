@@ -116,9 +116,7 @@ if __name__ == '__main__':
         hostname = raw_input("Hostname: ")
 
         with open(conf_file, 'w') as _config:
-            hostname = hostname.replace("http://", "")
-            hostname = hostname.replace("https://", "")
-            hostname += ":8000"
+            hostname = "http://" + hostname + ":8000"
             _config.write(hostname)
 
     parser = argparse.ArgumentParser(description='Release Engine Client Utility')
