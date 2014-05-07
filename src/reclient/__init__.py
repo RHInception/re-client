@@ -138,12 +138,12 @@ existing playbook.
         else:
             reclient.utils.less_file(path.name)
 
-    def edit_playbook(self, project, pb_id):
+    def edit_playbook(self, project, pb_id, input=raw_input):
         (pb, path) = self._get_playbook(project, pb_id)
         pb_fp = reclient.utils.edit_playbook(path)
         while True:
-            # send_back = raw_input("Upload [N/y] ('d' for diff)? ")
-            send_back = raw_input("Upload [Y/n]? ")
+            #send_back = input("Upload [N/y] ('d' for diff)? ")
+            send_back = input("Upload [Y/n]? ")
             if send_back.lower() == 'y' or send_back.strip() == '':
                 try:
                     result = self._send_playbook(project, pb_fp, pb_id)
