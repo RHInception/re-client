@@ -8,7 +8,7 @@
 
 Name: re-client
 Summary: Client utility for the Release Engine
-Version: 0.0.0
+Version: 0.0.1
 Release: 1%{?dist}
 
 Group: Applications/System
@@ -43,3 +43,5 @@ reading, updating, and deleting playbooks.
 %doc README.md LICENSE AUTHORS
 
 %changelog
+* Wed May  7 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.1-1
+- First release
