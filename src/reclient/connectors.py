@@ -36,21 +36,49 @@ class Connectors(object):
     def delete(self, url=""):
         url = self.baseurl + url
         out.debug("DELETE request send to: %s" % url)
-        return requests.delete(url, headers=self.headers, verify=False)
+        response = requests.delete(url, headers=self.headers, verify=False)
+        out.debug("Response:")
+        try:
+            out.debug(response.json())
+        except Exception:
+            # Might not be loadable if it's a weird error
+            out.debug(str(response.text))
+        return response
 
     def get(self, url=""):
         url = self.baseurl + url
         out.debug("GET request send to: %s" % url)
-        return requests.get(url, headers=self.headers, verify=False)
+        response = requests.get(url, headers=self.headers, verify=False)
+        out.debug("Response:")
+        try:
+            out.debug(response.json())
+        except Exception:
+            # Might not be loadable if it's a weird error
+            out.debug(str(response.text))
+        return response
 
     def post(self, url="", data={}):
         url = self.baseurl + url
         out.debug("POST request send to: %s" % url)
         out.debug("Data: %s" % str(data))
-        return requests.post(url, data, headers=self.headers, verify=False)
+        response = requests.post(url, data, headers=self.headers, verify=False)
+        out.debug("Response:")
+        try:
+            out.debug(response.json())
+        except Exception:
+            # Might not be loadable if it's a weird error
+            out.debug(str(response.text))
+        return response
 
     def put(self, url="", data={}):
         url = self.baseurl + url
         out.debug("PUT request send to: %s" % url)
         out.debug("Data: %s" % str(data))
-        return requests.put(url, data, headers=self.headers, verify=False)
+        response = requests.put(url, data, headers=self.headers, verify=False)
+        out.debug("Response:")
+        try:
+            out.debug(response.json())
+        except Exception:
+            # Might not be loadable if it's a weird error
+            out.debug(str(response.text))
+        return response
