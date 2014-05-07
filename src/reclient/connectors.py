@@ -21,7 +21,7 @@ out = logging.getLogger('reclient')
 
 
 class Connectors(object):
-    def __init__(self, connect_params, reclient_version='0.0.0'):
+    def __init__(self, connect_params, reclient_version='0.0.1'):
         """
         connect_params.keys() = ['name', 'password', 'baseurl']
         """
