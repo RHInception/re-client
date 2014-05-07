@@ -83,4 +83,4 @@ class TestUtils(TestCase):
         """
         with mock.patch('reclient.utils.call') as utils.call:
             utils.less_file('/fake/file.txt')
-            utils.call.assert_called_once_with(['less', '/fake/file.txt'])
+            utils.call.assert_called_once_with(['less', '-X', '/fake/file.txt'])
