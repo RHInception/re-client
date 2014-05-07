@@ -64,7 +64,7 @@ class TestInit(TestCase):
         # Without an id
         with mock.patch('reclient.connectors.requests.get') as get:
             response = mock.MagicMock(status_code=200)
-            response.json.return_value = '{"test": "item"}'
+            response.json.return_value = {"items": "item"}
             get.return_value = response
             with mock.patch('reclient.utils.temp_json_blob') as jb:
                 results = self.reclient._get_playbook(project)
@@ -72,14 +72,13 @@ class TestInit(TestCase):
                     self.reclient.endpoint + project + '/playbook/',
                     verify=False,
                     headers=self.reclient.connector.headers)
-                print results
-                assert results[0] == '{"test": "item"}'
+                assert results[0] == "item"
                 assert results[1] == jb()
 
         # With an id
         with mock.patch('reclient.connectors.requests.get') as get:
             response = mock.MagicMock(status_code=200)
-            response.json.return_value = '{"test": "item"}'
+            response.json.return_value = {"item": "item"}
             get.return_value = response
             with mock.patch('reclient.utils.temp_json_blob') as jb:
                 results = self.reclient._get_playbook(project, id)
@@ -87,8 +86,7 @@ class TestInit(TestCase):
                     self.reclient.endpoint + project + '/playbook/' + id + "/",
                     verify=False,
                     headers=self.reclient.connector.headers)
-                print results
-                assert results[0] == '{"test": "item"}'
+                assert results[0] == "item"
                 assert results[1] == jb()
 
     def test_get_all_playbooks_ever(self):
