@@ -1,0 +1,64 @@
+re-client(1)
+==========
+:man source:   Release Engine Client
+:man version:  0.0.1
+:man manual:   Release Engine
+
+NAME
+----
+re-client - Client utility for the Release Engine
+
+SYNOPSIS
+--------
+re-client [-h] [-d] [-p PROJECT] [-i ID]
+
+DESCRIPTION
+----------
+Utilities for interacting with the Release Engine. Supports creating,
+reading, updating, and deleting playbooks.
+
+OPTIONS
+-------
+*-h*, *--help*::
+Show the help message
+
+*-d*, *--debug*::
+Enable debugging output
+
+*-p* 'PROJECT', *--project*='PROJECT'::
+Set default 'PROJECT'
+
+*-i* 'ID', *--id*='ID'::
+Set default playbook 'ID'
+
+
+
+AUTHOR
+------
+The Release Engine was originally written by the **Inception** team at
+Red Hat.
+
+See the AUTHORS file (or the git logs) for a complete list of
+contributors.
+
+This man page was originally written by Tim Bielawa
+<tbielawa@redhat.com>.
+
+
+FILES
+-----
+*~/reclient.conf* -- reclient configuration file
+
+
+COPYRIGHT
+---------
+Copyright © 2014, Red Hat, Inc..
+
+re-client is released under the terms of the AGPLv3 license.
+
+
+SEE ALSO
+--------
+*re-core*(1), *re-rest*(1), *re-logger*(1), *re-worker*(1)
+
+*The Inception GitHub Organization* -- <https://github.com/RHInception>

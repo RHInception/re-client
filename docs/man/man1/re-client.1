@@ -1,0 +1,80 @@
+'\" t
+.\"     Title: re-client
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 05/07/2014
+.\"    Manual: Release Engine
+.\"    Source: Release Engine Client 0.0.1
+.\"  Language: English
+.\"
+.TH "RE\-CLIENT" "1" "05/07/2014" "Release Engine Client 0\&.0\&." "Release Engine"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+re-client \- Client utility for the Release Engine
+.SH "SYNOPSIS"
+.sp
+re\-client [\-h] [\-d] [\-p PROJECT] [\-i ID]
+.SH "DESCRIPTION"
+.sp
+Utilities for interacting with the Release Engine\&. Supports creating, reading, updating, and deleting playbooks\&.
+.SH "OPTIONS"
+.PP
+\fB\-h\fR, \fB\-\-help\fR
+.RS 4
+Show the help message
+.RE
+.PP
+\fB\-d\fR, \fB\-\-debug\fR
+.RS 4
+Enable debugging output
+.RE
+.PP
+\fB\-p\fR \fIPROJECT\fR, \fB\-\-project\fR=\fIPROJECT\fR
+.RS 4
+Set default
+\fIPROJECT\fR
+.RE
+.PP
+\fB\-i\fR \fIID\fR, \fB\-\-id\fR=\fIID\fR
+.RS 4
+Set default playbook
+\fIID\fR
+.RE
+.SH "AUTHOR"
+.sp
+The Release Engine was originally written by the \fBInception\fR team at Red Hat\&.
+.sp
+See the AUTHORS file (or the git logs) for a complete list of contributors\&.
+.sp
+This man page was originally written by Tim Bielawa <tbielawa@redhat\&.com>\&.
+.SH "FILES"
+.sp
+\fB~/reclient\&.conf\fR \(em reclient configuration file
+.SH "COPYRIGHT"
+.sp
+Copyright \(co 2014, Red Hat, Inc\&.\&.
+.sp
+re\-client is released under the terms of the AGPLv3 license\&.
+.SH "SEE ALSO"
+.sp
+\fBre\-core\fR(1), \fBre\-rest\fR(1), \fBre\-logger\fR(1), \fBre\-worker\fR(1)
+.sp
+\fBThe Inception GitHub Organization\fR \(em https://github\&.com/RHInception

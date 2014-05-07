@@ -106,4 +106,4 @@ instantiated) file handle is returned."""
 
 
 def less_file(path):
-    call(['less', path])
+    call(['less', '-X', path])
