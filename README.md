@@ -8,21 +8,20 @@ Still a very very beta product. Buyer beware!
 
 # Setup
 
-    $ PYTHONPATH=`pwd`/src/:$PYTHONPATH
+    $ export PYTHONPATH=`pwd`/src/:$PYTHONPATH
 	$ ./bin/re-client
 
 At this point you'll be prompted to enter some configuration values:
 
-    $ ./bin/re-client
-	Could not load base rerest url from /home/USERNAME/.rerest.conf
-	Enter the base url (http://.......:PORT) for your rerest endpoint
-	This will be saved in /home/USERNAME/.rerest.conf for reuse later
-	Base Url:
+    Could not load base rerest url from /home/tbielawa/.reclient.conf
+    Enter the hostname of your rerest endpoint
+    This will be saved in /home/tbielawa/.reclient.conf for reuse later
+    Hostname:
 
-At this point you would enter the URL (with port if necessary) to your
+At this point you would enter the hostname of your
 [re-rest](https://github.com/RHInception/re-rest) endpoint.
 
-    Base Url: http://rerest.example.com:8000
+    Hostname: rerest.example.com
 
     0) Get all playbooks ever
     1) Get all playbooks for a project

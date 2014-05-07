@@ -21,7 +21,7 @@ import os
 import argparse
 import atexit
 
-conf_file = os.path.expanduser('~/.rerest.conf')
+conf_file = os.path.expanduser('~/.reclient.conf')
 readline.parse_and_bind("tab: complete")
 try:
     histfile = os.path.expanduser('~/.reclienthist')
@@ -111,12 +111,15 @@ def repl(args):
 if __name__ == '__main__':
     if not os.path.exists(conf_file):
         print "Could not load base rerest url from %s" % conf_file
-        print "Enter the base url (http://.......:PORT) for your rerest endpoint"
+        print "Enter the hostname of your rerest endpoint"
         print "This will be saved in %s for reuse later" % conf_file
-        baseurl = raw_input("Base Url: ")
+        hostname = raw_input("Hostname: ")
 
         with open(conf_file, 'w') as _config:
-            _config.write(baseurl)
+            hostname = hostname.replace("http://", "")
+            hostname = hostname.replace("https://", "")
+            hostname += ":8000"
+            _config.write(hostname)
 
     parser = argparse.ArgumentParser(description='Release Engine Client Utility')
     parser.add_argument('-p', '--project', required=False,
