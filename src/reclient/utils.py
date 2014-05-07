@@ -19,9 +19,10 @@ from subprocess import call
 import tempfile
 import json
 import logging
-import difflib
+#import difflib
 
 out = logging.getLogger('reclient')
+
 
 def temp_json_blob(data):
     """data is either a string or a hash. Function will 'do the right
@@ -46,6 +47,7 @@ thing' either way"""
 #     file pointers"""
 #     d = difflib.Differ()
 
+
 def edit_playbook(blob):
     """Edit the playbook object 'blob'.
 
@@ -65,24 +67,40 @@ instantiated) file handle is returned."""
     callcmd = [EDITOR]
     tmpfile = blob
 
+    # Could be a file we just grabbed with
+    # ReClient._get_playbook. Flush it first so we aren't editing an
+    # empty file.
     if isinstance(blob, tempfile._TemporaryFileWrapper):
         blob.flush()
     else:
         tmpfile = temp_json_blob(blob)
 
     try:
+        out.debug("Editing with EDITOR=%s" % EDITOR)
         if EDITOR == "emacs":
             # Do not launch in graphical mode
             callcmd.extend(["-nw", tmpfile.name])
         else:
             callcmd.append(tmpfile.name)
 
-        print "Going to launch editor with args: %s" % str(callcmd)
+        out.debug("Going to launch editor with args: %s" % str(callcmd))
 
         call(callcmd)
-    except OSError, e:
-        callcmd.extend(tmpfile.name)
-        call(callcmd)
+    except OSError:
+        # Whatever we called before failed. Try 'vi' as a fallback,
+        # then try 'vim'
+        out.debug("First call to EDITOR failed. Trying 'vi' explicitly")
+        try:
+            fallback_call = ['vi', tmpfile.name]
+            call(fallback_call)
+        except OSError:
+            out.debug("Second call to EDITOR failed. Trying 'vim' explicitly")
+            try:
+                fallback_back_call = ['vim', tmpfile.name]
+                call(fallback_back_call)
+            except OSError:
+                out.info("Could not launch any editors. Tried: %s, vi, and vim" % (
+                    EDITOR))
 
     return tmpfile
 

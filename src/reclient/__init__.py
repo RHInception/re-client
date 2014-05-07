@@ -17,7 +17,6 @@
 
 from reclient.connectors import Connectors
 import reclient.utils
-import json
 import logging
 
 """Handles basic HTTP authentication and calls to the rerest
@@ -25,8 +24,8 @@ endpoint."""
 
 out = logging.getLogger('recore')
 
-class ReClient(object):
 
+class ReClient(object):
     def __init__(self, baseurl, version='v0', debug=1):
         self.v = version
         self.debug = debug
@@ -35,8 +34,6 @@ class ReClient(object):
 
     def _config(self):
         """Get the endpoint configuration"""
-        username = "foo"
-        password = "bar"
         self.endpoint = "%s/api/%s/" % (self.baseurl, self.v)
         self.connector = Connectors({
             "name": "foo",
@@ -134,7 +131,7 @@ existing playbook.
         """
         try:
             (pb, path) = self._get_playbook(project, pb_id)
-        except ReClientGETError, e:
+        except ReClientGETError:
             print "Error while attempting to find '%s' for project '%s'" % (
                 pb_id, project)
             print "Are you sure it exists?"
@@ -155,8 +152,8 @@ existing playbook.
                 except ReClientSendError, rcse:
                     print "Error while sending updated playbook: %s" % (
                         str(rcse))
-                finally:
-                    break
+                else:
+                    return result
             # elif send_back.lower() == 'd':
             #     orig = reclient.utils.temp_json_blob(pb)
             #     reclient.utils.differ(orig, pb_fp)
@@ -164,7 +161,10 @@ existing playbook.
                 print "Not sending back. Playbook will be saved in %s" % (
                     pb_fp.name)
                 print "until this program is closed."
-                break
+                return
+            else:
+                # You entered in garbage. Start over...
+                pass
 
     def delete_playbook(self, project, pb_id):
         suffix = "%s/playbook/%s/" % (project, pb_id)
@@ -172,7 +172,6 @@ existing playbook.
         return result
 
     def new_playbook(self, project):
-        suffix = "%s/playbook/" % project
         pb = {
             "project": project,
             "ownership": {
@@ -185,11 +184,14 @@ existing playbook.
         reclient.utils.edit_playbook(pb_fp)
         self._send_playbook(project, pb_fp)
 
+
 class ReClientError(Exception):
     pass
 
+
 class ReClientGETError(ReClientError):
     pass
+
 
 class ReClientSendError(ReClientError):
     pass
