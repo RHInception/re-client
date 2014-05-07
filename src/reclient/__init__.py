@@ -142,7 +142,6 @@ existing playbook.
         (pb, path) = self._get_playbook(project, pb_id)
         pb_fp = reclient.utils.edit_playbook(path)
         while True:
-            #send_back = input("Upload [N/y] ('d' for diff)? ")
             send_back = input("Upload [Y/n]? ")
             if send_back.lower() == 'y' or send_back.strip() == '':
                 try:

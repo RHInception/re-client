@@ -99,8 +99,9 @@ instantiated) file handle is returned."""
                 fallback_back_call = ['vim', tmpfile.name]
                 call(fallback_back_call)
             except OSError:
-                out.info("Could not launch any editors. Tried: %s, vi, and vim" % (
-                    EDITOR))
+                out.info(
+                    "Could not launch any editors. Tried: %s, vi, and vim" % (
+                        EDITOR))
 
     return tmpfile
 
