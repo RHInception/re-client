@@ -18,7 +18,7 @@ Unittests.
 
 import json
 import os
-
+import pwd
 import mock
 
 import reclient
@@ -29,7 +29,10 @@ BASEURL = 'http://127.0.0.1/'
 VERSION = 'v0'
 PROJECT = 'test'
 ID = '12345'
-
+reclient_config = {
+    'baseurl': BASEURL,
+    'username': pwd.getpwuid(os.getuid())[0]
+}
 
 class TestInit(TestCase):
 
@@ -37,7 +40,8 @@ class TestInit(TestCase):
         """
         Set up for tests.
         """
-        self.reclient = reclient.ReClient(BASEURL, VERSION)
+        reclient.reclient_config = reclient_config
+        self.reclient = reclient.ReClient()
 
     def test_reclient_init(self):
         """
@@ -54,7 +58,8 @@ class TestInit(TestCase):
         self.reclient._config()
         assert self.reclient.endpoint == "%s/api/%s/" % (BASEURL, VERSION)
         assert self.reclient.connector.baseurl == self.reclient.endpoint
-        assert self.reclient.connector.auth == ('foo', 'bar')  # FIXME
+        print pwd.getpwuid(os.getuid())[0]
+        assert self.reclient.connector.auth == (pwd.getpwuid(os.getuid())[0], 'foobar')  # FIXME
 
     def test__get_playbook(self):
         """
@@ -194,7 +199,7 @@ class TestInit(TestCase):
             with mock.patch('reclient.utils.edit_playbook') as edit_pb:
                 # Nothing is returned
                 assert self.reclient.edit_playbook(
-                    PROJECT, ID, lambda i: 'n') is None
+                    PROJECT, ID, noop=True) is None
 
         # With sending back
         with mock.patch('reclient.ReClient._get_playbook') as get_pb:
@@ -204,7 +209,7 @@ class TestInit(TestCase):
             with mock.patch('reclient.utils.edit_playbook') as edit_pb:
                 with mock.patch('reclient.ReClient._send_playbook') as send_pb:
                     result = self.reclient.edit_playbook(
-                        PROJECT, ID, lambda i: 'y')
+                        PROJECT, ID, noop=False)
                     # The result should be from the call of _send_playbook
                     assert result == send_pb()
 

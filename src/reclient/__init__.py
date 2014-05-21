@@ -16,6 +16,7 @@
 
 
 from reclient.connectors import Connectors
+from reclient.colorize import colorize
 import reclient.utils
 import logging
 
@@ -23,21 +24,22 @@ import logging
 endpoint."""
 
 out = logging.getLogger('recore')
+reclient_config = {}
 
 
 class ReClient(object):
-    def __init__(self, baseurl, version='v0', debug=1):
+    def __init__(self, version='v0', debug=1):
         self.v = version
         self.debug = debug
-        self.baseurl = baseurl
+        self.baseurl = reclient_config['baseurl']
         self._config()
 
     def _config(self):
         """Get the endpoint configuration"""
         self.endpoint = "%s/api/%s/" % (self.baseurl, self.v)
         self.connector = Connectors({
-            "name": "foo",
-            "password": "bar",
+            "name": reclient_config['username'],
+            "password": "foobar",
             "baseurl": self.endpoint
         })
 
@@ -110,8 +112,19 @@ existing playbook.
         """Get ALL THE PLAYBOOKS"""
         suffix = "playbooks/"
         result = self.connector.get(suffix)
-        view_file = reclient.utils.temp_json_blob(result.json())
-        reclient.utils.less_file(view_file.name)
+        try:
+            response_msg = result.json()
+            if response_msg['status'] == 'error':
+                print colorize("Error while fetching all playbooks", color="red",
+                               background="lightgray")
+                print colorize("%s - %s" % (str(result), response_msg), color="red",
+                               background="lightgray")
+                raise ReClientGETError(result)
+        except Exception:
+            return False
+        else:
+            view_file = reclient.utils.temp_json_blob(result.json())
+            reclient.utils.less_file(view_file.name)
 
     def get_all_playbooks(self, project):
         """
@@ -120,10 +133,16 @@ existing playbook.
         try:
             (path, pb_fp) = self._get_playbook(project)
         except ReClientGETError, e:
-            print "Error while attempting to get playbooks for project: %s" % (
-                project)
-            raise e
-        reclient.utils.less_file(pb_fp.name)
+            response_msg = e.args[0].json()
+            print colorize("Error while fetching playbooks for %s:" % project,
+                           color="red",
+                           background="lightgray")
+            print colorize("%s - %s" % (
+                str(e),
+                response_msg['message']),
+                           color="red", background="lightgray")
+        else:
+            reclient.utils.less_file(pb_fp.name)
 
     def view_file(self, project, pb_id):
         """
@@ -132,17 +151,37 @@ existing playbook.
         try:
             (pb, path) = self._get_playbook(project, pb_id)
         except ReClientGETError:
-            print "Error while attempting to find '%s' for project '%s'" % (
-                pb_id, project)
-            print "Are you sure it exists?"
+            print colorize("Error while attempting to find '%s' for project '%s'\nAre you sure it exists?" % (
+                pb_id, project),
+                           color="red",
+                           background="lightgray")
+            print ""
         else:
             reclient.utils.less_file(path.name)
 
-    def edit_playbook(self, project, pb_id, input=raw_input):
-        (pb, path) = self._get_playbook(project, pb_id)
+    def edit_playbook(self, project, pb_id, noop=None):
+        try:
+            (pb, path) = self._get_playbook(project, pb_id)
+        except ReClientGETError, rcge:
+            response_msg = rcge.args[0].json()
+            print colorize("Error while fetching playbooks for %s:" % project,
+                           color="red",
+                           background="lightgray")
+            print colorize("%s - %s" % (
+                str(rcge),
+                response_msg['message']),
+                           color="red", background="lightgray")
+            return False
+
         pb_fp = reclient.utils.edit_playbook(path)
         while True:
-            send_back = input("Upload [Y/n]? ")
+            if noop:
+                send_back = 'n'
+            elif not noop:
+                send_back = 'y'
+            else:
+                send_back = input("Upload [Y/n]? ")
+
             if send_back.lower() == 'y' or send_back.strip() == '':
                 try:
                     result = self._send_playbook(project, pb_fp, pb_id)
@@ -170,6 +209,30 @@ existing playbook.
         result = self.connector.delete(suffix)
         return result
 
+    def start_deployment(self, project):
+        suffix = "%s/deployment/" % project
+        result = self.connector.put(suffix)
+        try:
+            _status = result.json().get('status')
+            if _status == 'error':
+                raise ReClientDeployError(result)
+        except ReClientDeployError, rcde:
+            response_msg = rcde.args[0].json()
+            print colorize("Error while fetching playbooks for %s:" % project,
+                           color="red",
+                           background="lightgray")
+            print colorize("%s - %s" % (
+                str(rcde),
+                response_msg['message']),
+                           color="red", background="lightgray")
+            return False
+        except Exception, e:
+            print colorize("Unknown error while starting deployment: %s" %
+                           (str(e)),
+                           color="red")
+        else:
+            return result
+
     def new_playbook(self, project):
         pb = {
             "project": project,
@@ -193,4 +256,8 @@ class ReClientGETError(ReClientError):
 
 
 class ReClientSendError(ReClientError):
+    pass
+
+
+class ReClientDeployError(ReClientError):
     pass
