@@ -115,10 +115,12 @@ existing playbook.
         try:
             response_msg = result.json()
             if response_msg['status'] == 'error':
-                print colorize("Error while fetching all playbooks", color="red",
-                               background="lightgray")
-                print colorize("%s - %s" % (str(result), response_msg), color="red",
-                               background="lightgray")
+                print colorize(
+                    "Error while fetching all playbooks", color="red",
+                    background="lightgray")
+                print colorize(
+                    "%s - %s" % (str(result), response_msg), color="red",
+                    background="lightgray")
                 raise ReClientGETError(result)
         except Exception:
             return False
@@ -137,10 +139,11 @@ existing playbook.
             print colorize("Error while fetching playbooks for %s:" % project,
                            color="red",
                            background="lightgray")
-            print colorize("%s - %s" % (
-                str(e),
-                response_msg['message']),
-                           color="red", background="lightgray")
+            print colorize(
+                "%s - %s" % (
+                    str(e),
+                    response_msg['message']),
+                color="red", background="lightgray")
         else:
             reclient.utils.less_file(pb_fp.name)
 
@@ -151,10 +154,12 @@ existing playbook.
         try:
             (pb, path) = self._get_playbook(project, pb_id)
         except ReClientGETError:
-            print colorize("Error while attempting to find '%s' for project '%s'\nAre you sure it exists?" % (
-                pb_id, project),
-                           color="red",
-                           background="lightgray")
+            print colorize((
+                "Error while attempting to find '%s' for project '%s'\n"
+                "Are you sure it exists?") % (
+                    pb_id, project),
+                color="red",
+                background="lightgray")
             print ""
         else:
             reclient.utils.less_file(path.name)
@@ -167,10 +172,11 @@ existing playbook.
             print colorize("Error while fetching playbooks for %s:" % project,
                            color="red",
                            background="lightgray")
-            print colorize("%s - %s" % (
-                str(rcge),
-                response_msg['message']),
-                           color="red", background="lightgray")
+            print colorize(
+                "%s - %s" % (
+                    str(rcge),
+                    response_msg['message']),
+                color="red", background="lightgray")
             return False
 
         pb_fp = reclient.utils.edit_playbook(path)
@@ -221,10 +227,11 @@ existing playbook.
             print colorize("Error while fetching playbooks for %s:" % project,
                            color="red",
                            background="lightgray")
-            print colorize("%s - %s" % (
-                str(rcde),
-                response_msg['message']),
-                           color="red", background="lightgray")
+            print colorize(
+                "%s - %s" % (
+                    str(rcde),
+                    response_msg['message']),
+                color="red", background="lightgray")
             return False
         except Exception, e:
             print colorize("Unknown error while starting deployment: %s" %

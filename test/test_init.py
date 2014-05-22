@@ -34,6 +34,7 @@ reclient_config = {
     'username': pwd.getpwuid(os.getuid())[0]
 }
 
+
 class TestInit(TestCase):
 
     def setUp(self):
@@ -59,7 +60,9 @@ class TestInit(TestCase):
         assert self.reclient.endpoint == "%s/api/%s/" % (BASEURL, VERSION)
         assert self.reclient.connector.baseurl == self.reclient.endpoint
         print pwd.getpwuid(os.getuid())[0]
-        assert self.reclient.connector.auth == (pwd.getpwuid(os.getuid())[0], 'foobar')  # FIXME
+        # FIXME
+        assert self.reclient.connector.auth == (
+            pwd.getpwuid(os.getuid())[0], 'foobar')
 
     def test__get_playbook(self):
         """

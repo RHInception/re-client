@@ -189,7 +189,8 @@ def cli():
 Parses/updates client configuration via config_reclient, parses
 command line options. Launches the REPL.
 """
-    parser = argparse.ArgumentParser(description='Release Engine Client Utility')
+    parser = argparse.ArgumentParser(
+        description='Release Engine Client Utility')
     parser.add_argument('-d', '--debug', action='store_true',
                         default=False, help='Enable REST debugging')
     parser.add_argument('-p', '--project', required=False,
