@@ -157,7 +157,7 @@ existing playbook.
             print colorize((
                 "Error while attempting to find '%s' for project '%s'\n"
                 "Are you sure it exists?") % (
-                    pb_id, project),
+                pb_id, project),
                 color="red",
                 background="lightgray")
             print ""
@@ -198,7 +198,7 @@ existing playbook.
                         str(rcse))
                 else:
                     print colorize("Updated playbook for %s:" % project,
-                           color="green")
+                                   color="green")
                     return result
             # elif send_back.lower() == 'd':
             #     orig = reclient.utils.temp_json_blob(pb)
@@ -206,7 +206,7 @@ existing playbook.
             elif send_back.lower() == 'n':
                 print colorize("Not sending back. Playbook will be saved in %s until this program is closed." % (
                     pb_fp.name),
-                               color="yellow")
+                    color="yellow")
                 return
             else:
                 # You entered in garbage. Start over...
