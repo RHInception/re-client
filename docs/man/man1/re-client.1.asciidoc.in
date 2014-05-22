@@ -43,7 +43,9 @@ several options to select from, they are self-explanatory:
     3) Update a playbook
     4) Delete a playbook
     5) Create a new playbook
-    6) Quit
+    6) Start a deployment (without dynamic variables)
+    7) Quit
+
 
 The *re-client* prompt is *readline* enabled. This means it supports
 line editing and command history if your platform has *readline*

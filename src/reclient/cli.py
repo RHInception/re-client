@@ -44,13 +44,13 @@ except IOError:
 
 def cmds():
     print """
-0) Get all playbooks ever
+0) Get all playbooks ever (if you're authorized)
 1) Get all playbooks for a project
 2) Get a single playbook for a project
 3) Update a playbook
 4) Delete a playbook
 5) Create a new playbook
-6) Start a deployment
+6) Start a deployment (without any dynamic keys)
 7) Quit"""
 
 ######################################################################

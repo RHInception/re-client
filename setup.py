@@ -19,17 +19,16 @@ import sys
 
 from distutils.core import setup
 
-setup(
-    name='re-client',
-    version='0.0.1',
-    description='Release Engine Client Utilities',
-    author='See AUTHORS file',
-    author_email='inception@redhat.com',
-    url='https://github.com/rhinception/re-client',
-    license='AGPLv3',
-    package_dir={'reclient': 'src/reclient'},
-    packages=['reclient'],
-    scripts=[
-        'bin/re-client',
-    ]
+setup(name='re-client',
+      version='0.0.2',
+      description='Release Engine Client Utilities',
+      author='See AUTHORS file',
+      author_email='inception@redhat.com',
+      url='https://github.com/rhinception/re-client',
+      license='AGPLv3',
+      package_dir={ 'reclient': 'src/reclient' },
+      packages=['reclient'],
+      scripts=[
+         'bin/re-client',
+      ]
 )

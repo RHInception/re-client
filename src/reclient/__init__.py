@@ -197,14 +197,16 @@ existing playbook.
                     print "Error while sending updated playbook: %s" % (
                         str(rcse))
                 else:
+                    print colorize("Updated playbook for %s:" % project,
+                           color="green")
                     return result
             # elif send_back.lower() == 'd':
             #     orig = reclient.utils.temp_json_blob(pb)
             #     reclient.utils.differ(orig, pb_fp)
             elif send_back.lower() == 'n':
-                print "Not sending back. Playbook will be saved in %s" % (
-                    pb_fp.name)
-                print "until this program is closed."
+                print colorize("Not sending back. Playbook will be saved in %s until this program is closed." % (
+                    pb_fp.name),
+                               color="yellow")
                 return
             else:
                 # You entered in garbage. Start over...

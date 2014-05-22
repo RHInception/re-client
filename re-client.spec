@@ -8,7 +8,7 @@
 
 Name: re-client
 Summary: Client utility for the Release Engine
-Version: 0.0.1
+Version: 0.0.2
 Release: 1%{?dist}
 
 Group: Applications/System
@@ -46,5 +46,8 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Thu May 22 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.2-1
+- Tons of fixes/enhancements. Read the git log
+
 * Wed May  7 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.1-1
 - First release
