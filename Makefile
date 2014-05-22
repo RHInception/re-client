@@ -50,6 +50,9 @@ sdist: clean
 tests: unittests pep8 pyflakes
 	:
 
+coverage:
+	nosetests -v --with-cover --cover-min-percentage=80 --cover-package=reclient --cover-html test/
+
 unittests:
 	@echo "#############################################"
 	@echo "# Running Unit Tests"

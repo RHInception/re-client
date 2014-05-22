@@ -77,6 +77,19 @@ class TestUtils(TestCase):
             result = utils.edit_playbook({'test': 'item'})
             utils.call.assert_callled_once_with(['vim', result.name])
 
+    def test_edit_playbook_editor_fallback(self):
+        """
+        Fall-back logic works as expected when selecting editor
+        """
+        del os.environ['EDITOR']
+
+        m_u_c = mock.Mock(side_effect=OSError)
+        with mock.patch('reclient.utils.call', m_u_c) as utils.call:
+            os.environ['EDITOR'] = 'reclient_fake_editor_doesnt_exist'
+            os.environ['PATH'] = ''
+            result = utils.edit_playbook({'test': 'item'})
+            self.assertEqual(result, False)
+
     def test_less_file(self):
         """
         Make sure the system call to less works.

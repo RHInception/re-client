@@ -91,6 +91,7 @@ instantiated) file handle is returned."""
         # Whatever we called before failed. Try 'vi' as a fallback,
         # then try 'vim'
         out.debug("First call to EDITOR failed. Trying 'vi' explicitly")
+
         try:
             fallback_call = ['vi', tmpfile.name]
             call(fallback_call)
@@ -103,7 +104,7 @@ instantiated) file handle is returned."""
                 out.info(
                     "Could not launch any editors. Tried: %s, vi, and vim" % (
                         EDITOR))
-
+                return False
     return tmpfile
 
 
