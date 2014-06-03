@@ -67,9 +67,17 @@ def repl(args):
             action = int(raw_input(
                 colorize("command>> ",
                          color="yellow")))
-        except KeyboardInterrupt, ke:
-            raise ke
+        except KeyboardInterrupt:
+            raise SystemExit
+        except ValueError, e:
+            bad_input = e.args[0].split(':')[1].replace("'", '').strip()
+            if bad_input.lower() == 'q':
+                raise SystemExit
+            else:
+                print colorize("Invalid option. Try again.", color="red")
+                continue
         except:
+
             continue
 
         if action == 0:
