@@ -136,7 +136,11 @@ def repl(args):
                 project = raw_input("Project: ")
             else:
                 project = args.project
-            rclient.start_deployment(project)
+            if args.id is None:
+                pb_id = raw_input("Playbook ID: ")
+            else:
+                pb_id = args.id
+            rclient.start_deployment(project, pb_id)
         elif action == 7:
             # Quit
             raise SystemExit

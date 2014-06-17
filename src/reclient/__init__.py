@@ -217,8 +217,9 @@ existing playbook.
         result = self.connector.delete(suffix)
         return result
 
-    def start_deployment(self, project):
-        suffix = "%s/deployment/" % project
+    def start_deployment(self, project, pb_id):
+        suffix = "%s/playbook/%s/deployment/" % (
+            project, pb_id)
         result = self.connector.put(suffix)
         try:
             _status = result.json().get('status')

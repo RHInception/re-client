@@ -9,7 +9,7 @@
 Name: re-client
 Summary: Client utility for the Release Engine
 Version: 0.0.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -18,6 +18,9 @@ Url: https://github.com/rhinception/re-client
 
 BuildArch: noarch
 BuildRequires: python2-devel
+Requires: python-pymongo
+Requires: python-requests
+Requires: python-pika
 # BuildRequires: python-nose
 # %{?el6:BuildRequires: python-unittest2}
 
@@ -46,6 +49,10 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Tue Jun 17 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.2-2
+- Add missing Requires
+- Add prompt for playbook ID when starting deployments
+
 * Thu May 22 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.2-1
 - Tons of fixes/enhancements. Read the git log
 
