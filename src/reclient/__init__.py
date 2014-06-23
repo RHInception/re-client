@@ -212,6 +212,25 @@ existing playbook.
                 # You entered in garbage. Start over...
                 pass
 
+    def download_playbook(self, save_path, project, pb_id):
+        (pb, path) = self._get_playbook(project, pb_id)
+        print "Playbook fetched"
+        print "Saving playbook to: %s" % save_path
+        reclient.utils.save_playbook(pb, save_path)
+        print colorize(
+            "Success: Playbook %s saved to %s" % (
+                pb_id, save_path),
+            color="green")
+
+    def upload_playbook(self, source_path, project):
+        with open(source_path, 'r') as _source:
+            result = self._send_playbook(project, _source)
+        print result.json()
+        print colorize(
+            "Success: Playbook uploaded. ID: %s" % (
+                "foo"),
+            color="green")
+
     def delete_playbook(self, project, pb_id):
         suffix = "%s/playbook/%s/" % (project, pb_id)
         result = self.connector.delete(suffix)

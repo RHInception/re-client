@@ -25,6 +25,13 @@ import logging
 out = logging.getLogger('reclient')
 
 
+def save_playbook(blob, dest):
+    """Save the temporary playbook, `source` at `path`"""
+    with open(dest, 'w') as _dest:
+        del blob['id']
+        json.dump(blob, _dest, indent=4)
+
+
 def temp_json_blob(data):
     """data is either a string or a hash. Function will 'do the right
 thing' either way"""

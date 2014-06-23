@@ -51,7 +51,9 @@ def cmds():
 4) Delete a playbook
 5) Create a new playbook
 6) Start a deployment (without any dynamic keys)
-7) Quit"""
+7) Download a playbook
+8) Upload a playbook
+9) Quit"""
 
 ######################################################################
 # REPL
@@ -142,6 +144,26 @@ def repl(args):
                 pb_id = args.id
             rclient.start_deployment(project, pb_id)
         elif action == 7:
+            # Download a playbook
+            if args.project is None:
+                project = raw_input("Project: ")
+            else:
+                project = args.project
+            if args.id is None:
+                pb_id = raw_input("Playbook ID: ")
+            else:
+                pb_id = args.id
+            save_path = raw_input("Save as: ")
+            rclient.download_playbook(save_path, project, pb_id)
+        elif action == 8:
+            # Upload a playbook
+            if args.project is None:
+                project = raw_input("Project: ")
+            else:
+                project = args.project
+            source_path = raw_input("Source file: ")
+            rclient.upload_playbook(source_path, project)
+        elif action == 9:
             # Quit
             raise SystemExit
 
