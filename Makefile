@@ -28,7 +28,7 @@ ASCII2MAN = a2x -D $(dir $@) -d manpage -f manpage $<
 MANPAGES := docs/man/man1/re-client.1
 NAME := re-client
 
-RPMSPECDIR := .
+RPMSPECDIR := contrib/rpm
 RPMSPEC := $(RPMSPECDIR)/re-client.spec
 TESTPACKAGE := reclient
 SHORTNAME := reclient
