@@ -225,10 +225,10 @@ existing playbook.
     def upload_playbook(self, source_path, project):
         with open(source_path, 'r') as _source:
             result = self._send_playbook(project, _source)
-        print result.json()
+        _id = colorize(str(result.json()['id']), color="yellow")
         print colorize(
             "Success: Playbook uploaded. ID: %s" % (
-                "foo"),
+                _id),
             color="green")
 
     def delete_playbook(self, project, pb_id):
