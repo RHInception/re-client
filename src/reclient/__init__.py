@@ -225,7 +225,8 @@ existing playbook.
     def upload_playbook(self, source_path, project):
         with open(source_path, 'r') as _source:
             result = self._send_playbook(project, _source)
-        _id = colorize(str(result.json()['id']), color="yellow")
+        _result = result.json()
+        _id = colorize(str(_result['id']), color="yellow")
         print colorize(
             "Success: Playbook uploaded. ID: %s" % (
                 _id),
@@ -240,6 +241,7 @@ existing playbook.
         suffix = "%s/playbook/%s/deployment/" % (
             project, pb_id)
         result = self.connector.put(suffix)
+
         try:
             _status = result.json().get('status')
             if _status == 'error':
@@ -264,12 +266,15 @@ existing playbook.
 
     def new_playbook(self, project):
         pb = {
-            "project": project,
-            "ownership": {
-                "id": None,
-                "contact": None
-            },
-            "steps": []
+            "execution": [
+                {
+                    "hosts": [],
+                    "description": "",
+                    "steps": []
+                },
+            ],
+            "group": "",
+            "name": ""
         }
         pb_fp = reclient.utils.temp_json_blob(pb)
         reclient.utils.edit_playbook(pb_fp)

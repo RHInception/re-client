@@ -9,7 +9,7 @@
 Name: re-client
 Summary: Client utility for the Release Engine
 Version: 0.0.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -49,6 +49,9 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Tue Jul  1 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.3-2
+- Update the scaffolding for new playbooks
+
 * Wed Jun 25 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.3-1
 - Add direct download/upload options
 

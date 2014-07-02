@@ -23,6 +23,7 @@ import mock
 
 import reclient
 
+from contextlib import nested
 from . import TestCase, unittest
 
 BASEURL = 'http://127.0.0.1/'
@@ -155,19 +156,20 @@ class TestInit(TestCase):
         """
         get_all_playbooks_ever should do just that."
         """
-        with mock.patch('reclient.connectors.requests.get') as get:
-            with mock.patch('reclient.utils.less_file') as less_file:
-                with mock.patch('reclient.utils.temp_json_blob') as jb:
-                    # There should be nothing returned
-                    assert self.reclient.get_all_playbooks_ever() is None
-                    # Verify the remote call
-                    get.assert_called_once_with(
-                        self.reclient.endpoint + 'playbooks/',
-                        headers=self.reclient.connector.headers,
-                        verify=False)
-                    # And the following support calls
-                    assert jb.call_count == 1
-                    assert less_file.call_count == 1
+        with nested(
+                mock.patch('reclient.connectors.requests.get'),
+                mock.patch('reclient.utils.less_file'),
+                mock.patch('reclient.utils.temp_json_blob')) as (get, less_file, jb):
+            # There should be nothing returned
+            assert self.reclient.get_all_playbooks_ever() is None
+            # Verify the remote call
+            get.assert_called_once_with(
+                self.reclient.endpoint + 'playbooks/',
+                headers=self.reclient.connector.headers,
+                verify=False)
+            # And the following support calls
+            assert jb.call_count == 1
+            assert less_file.call_count == 1
 
     def test_view_file(self):
         """
@@ -236,11 +238,88 @@ class TestInit(TestCase):
         """
         Users should be able to create a new playbook.
         """
-        with mock.patch('reclient.utils.edit_playbook') as edit_pb:
-            with mock.patch('reclient.ReClient._send_playbook') as send_pb:
-                with mock.patch('reclient.utils.temp_json_blob') as jb:
-                    self.reclient.new_playbook(PROJECT)
-                    # These items must be called to make a new playbook
-                    assert jb.call_count == 1
-                    assert edit_pb.call_count == 1
-                    assert send_pb.call_count == 1
+        with nested(
+                mock.patch('reclient.utils.edit_playbook'),
+                mock.patch('reclient.ReClient._send_playbook'),
+                mock.patch('reclient.utils.temp_json_blob')) as (edit_pb, send_pb, jb):
+            self.reclient.new_playbook(PROJECT)
+            # These items must be called to make a new playbook
+            assert jb.call_count == 1
+            assert edit_pb.call_count == 1
+            assert send_pb.call_count == 1
+
+    def test_download_playbook(self):
+        """
+        We can save playbooks locally
+        """
+        with nested(
+                mock.patch('reclient.ReClient._get_playbook'),
+                mock.patch('reclient.utils.save_playbook')) as (get_pb, save_pb):
+            save_path = '/tmp/pb.json'
+            fake_pb = {'test': 'playbook'}
+            fake_tmp_file = mock.Mock(spec=file)
+            get_pb.return_value = (fake_pb, fake_tmp_file)
+
+            self.reclient.download_playbook(save_path, PROJECT, ID)
+            save_pb.assert_called_once_with(fake_pb, save_path)
+
+    def test_upload_playbook(self):
+        """
+        We can upload saved playbooks
+        """
+        with nested(
+                mock.patch('reclient.ReClient._send_playbook'),
+                mock.patch('reclient.open', create=True),
+                mock.patch('reclient.colorize')) as (send_pb, mock_open, color):
+            source_path = '/tmp/fake_pb.json'
+            mock_json = mock.Mock(return_value={'id': '1234567890'})
+            send_pb.return_value.json = mock_json
+            self.reclient.upload_playbook(source_path, PROJECT)
+
+            # The result from send playbook has it's .json method called
+            assert mock_json.call_count == 1
+
+            # colorize is called twice, once to highlight the pb id,
+            # and once to print the success message
+            assert color.call_count == 2
+
+            assert send_pb.called_once_with(PROJECT, mock_open.__enter__)
+
+    def test_start_deployment(self):
+        """
+        We can start a new deployment correctly
+        """
+        with mock.patch('reclient.connectors.requests.put') as put:
+            response = mock.MagicMock(status_code=201)
+            response.json = mock.MagicMock(spec=dict)
+            response.json.return_value = {u'status': u'created'}
+
+            put.return_value = response
+            result = self.reclient.start_deployment(PROJECT, ID)
+            put.assert_called_once_with(
+                self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/",
+                {},
+                verify=False,
+                headers=self.reclient.connector.headers)
+            # The result is simply the return data from put
+            assert result == put()
+
+        with mock.patch('reclient.connectors.requests.put') as put:
+            print "Testing with errors"
+            response = mock.MagicMock(status_code=403)
+            response.json = mock.MagicMock(spec=dict)
+            response.json.return_value = {
+                u'status': u'error',
+                u'message': u'Faked a bad deployment'
+            }
+
+            put.return_value = response
+
+            result = self.reclient.start_deployment(PROJECT, ID)
+            put.assert_called_once_with(
+                self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/",
+                {},
+                verify=False,
+                headers=self.reclient.connector.headers)
+
+            assert result == False
