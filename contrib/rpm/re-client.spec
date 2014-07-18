@@ -51,6 +51,7 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %changelog
 * Fri Jul 18 2014 Ryan Cook <rcook@redhat.com> - 0.0.3-3
 - Re-client on first run does not prompt for port
+
 * Tue Jul  1 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.3-2
 - Update the scaffolding for new playbooks
 
