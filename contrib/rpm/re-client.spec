@@ -9,7 +9,7 @@
 Name: re-client
 Summary: Client utility for the Release Engine
 Version: 0.0.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -49,6 +49,8 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Fri Jul 18 2014 Ryan Cook <rcook@redhat.com> - 0.0.3-3
+- Re-client on first run does not prompt for port
 * Tue Jul  1 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.3-2
 - Update the scaffolding for new playbooks
 

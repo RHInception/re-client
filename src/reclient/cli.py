@@ -193,6 +193,9 @@ def first_time_setup(out):
     out.info("* What is the hostname of your re-rest endpoint?")
     config_hostname = raw_input("HOSTNAME: ")
 
+    out.info("* What is the port of your re-rest endpoint?")
+    config_port = raw_input("PORT: ")
+
     out.info("* What is the name you use to authenticate with?")
     _username = pwd.getpwuid(os.getuid())[0]
     out.info("* Press enter to accept the default: %s" % (
@@ -205,12 +208,18 @@ def first_time_setup(out):
         config_username = input_username
 
     with open(conf_file, 'w') as _c_write:
-        _new_config = {
-            "baseurl": "http://" + config_hostname + ":8000",
-            "username": config_username
-        }
+        if config_port == "443":
+            _new_config = {
+                "baseurl": "https://" + config_hostname,
+                "username": config_username
+            }
+        else:
+            _new_config = {
+                "baseurl": "http://{}:{}".format(config_hostname, config_port),
+                "username": config_username
+            }
         json.dump(_new_config, _c_write, indent=4)
-    return _new_config
+        return _new_config
 
 ######################################################################
 # Main entry point
