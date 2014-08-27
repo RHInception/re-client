@@ -17,27 +17,27 @@
 import base64
 import requests
 import logging
+
 out = logging.getLogger('reclient')
 
 
 class Connectors(object):
-    def __init__(self, connect_params, reclient_version='0.0.1'):
+    def __init__(self, connect_params, reclient_version='0.0.4'):
         """
-        connect_params.keys() = ['name', 'password', 'baseurl']
+        connect_params.keys() = ['auth', 'baseurl']
         """
         self.baseurl = connect_params['baseurl']
-        self.auth = (connect_params['name'], connect_params['password'])
-        auth_header = base64.encodestring('%s:%s' % self.auth)[:-1]
+        self.auth = connect_params['auth']
         self.headers = {
             "content-type": "application/json",
-            "Authorization": "Basic %s" % auth_header,
             "User-Agent": "reclient/%s" % reclient_version
         }
 
     def delete(self, url=""):
         url = self.baseurl + url
         out.debug("DELETE request send to: %s" % url)
-        response = requests.delete(url, headers=self.headers, verify=False)
+        response = requests.delete(
+            url, headers=self.headers, verify=False, auth=self.auth)
         out.debug("Response:")
         try:
             out.debug(response.json())
@@ -46,10 +46,11 @@ class Connectors(object):
             out.debug(str(response.text))
         return response
 
-    def get(self, url=""):
+    def get(self, url="",):
         url = self.baseurl + url
         out.debug("GET request send to: %s" % url)
-        response = requests.get(url, headers=self.headers, verify=False)
+        response = requests.get(
+            url, headers=self.headers, verify=False, auth=self.auth)
         out.debug("Response:")
         try:
             out.debug(response.json())
@@ -62,7 +63,8 @@ class Connectors(object):
         url = self.baseurl + url
         out.debug("POST request send to: %s" % url)
         out.debug("Data: %s" % str(data))
-        response = requests.post(url, data, headers=self.headers, verify=False)
+        response = requests.post(
+            url, data, headers=self.headers, verify=False, auth=self.auth)
         out.debug("Response:")
         try:
             out.debug(response.json())
@@ -75,7 +77,8 @@ class Connectors(object):
         url = self.baseurl + url
         out.debug("PUT request send to: %s" % url)
         out.debug("Data: %s" % str(data))
-        response = requests.put(url, data, headers=self.headers, verify=False)
+        response = requests.put(
+            url, data, headers=self.headers, verify=False, auth=self.auth)
         out.debug("Response:")
         try:
             out.debug(response.json())

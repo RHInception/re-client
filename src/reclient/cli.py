@@ -200,12 +200,19 @@ def first_time_setup(out):
     _username = pwd.getpwuid(os.getuid())[0]
     out.info("* Press enter to accept the default: %s" % (
         _username))
+
     input_username = raw_input("Username: ")
 
     if input_username.strip() == "":
         config_username = _username
     else:
         config_username = input_username
+
+    input_kerberos = raw_input("Use Kerberos? (y/n): ").upper()
+    if input_kerberos == 'Y':
+        input_kerberos = True
+    else:
+        input_kerberos = False
 
     with open(conf_file, 'w') as _c_write:
         if config_port == 443:
@@ -218,6 +225,7 @@ def first_time_setup(out):
                 "baseurl": "http://{}:{}".format(config_hostname, config_port),
                 "username": config_username
             }
+        _new_config['use_kerberos'] = input_kerberos
         json.dump(_new_config, _c_write, indent=4)
         return _new_config
 

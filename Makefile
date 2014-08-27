@@ -60,7 +60,7 @@ unittests:
 	@echo "#############################################"
 	@echo "# Running Unit Tests"
 	@echo "#############################################"
-	nosetests -v
+	EDITOR=emacs nosetests -v
 
 clean:
 	@find . -type f -regex ".*\.py[co]$$" -delete

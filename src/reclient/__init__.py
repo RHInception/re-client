@@ -14,16 +14,24 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import getpass
+import logging
+
+import reclient.utils
+
+from requests_kerberos import HTTPKerberosAuth, OPTIONAL
 
 from reclient.connectors import Connectors
 from reclient.colorize import colorize
-import reclient.utils
-import logging
 
 """Handles basic HTTP authentication and calls to the rerest
 endpoint."""
 
+from logging import FileHandler
 out = logging.getLogger('recore')
+out.setLevel(logging.DEBUG)
+out.addHandler(FileHandler('/tmp/out.log'))
+
 reclient_config = {}
 
 
@@ -37,11 +45,18 @@ class ReClient(object):
     def _config(self):
         """Get the endpoint configuration"""
         self.endpoint = "%s/api/%s/" % (self.baseurl, self.v)
-        self.connector = Connectors({
-            "name": reclient_config['username'],
-            "password": "foobar",
-            "baseurl": self.endpoint
-        })
+        if reclient_config.get('use_kerberos', False):
+            out.debug('Using kerberos per configuration.')
+            self.connector = Connectors({
+                "auth": HTTPKerberosAuth(mutual_authentication=OPTIONAL),
+                "baseurl": self.endpoint,
+            })
+        else:
+            out.debug('Using HTTPAuth per configuration.')
+            self.connector = Connectors({
+                "auth": (reclient_config['username'], getpass.getpass()),
+                "baseurl": self.endpoint,
+            })
 
     def _get_playbook(self, project, pb_id=None):
         """project - name of the project to search for playbook with id
@@ -156,11 +171,10 @@ existing playbook.
         except ReClientGETError:
             print colorize((
                 "Error while attempting to find '%s' for project '%s'\n"
-                "Are you sure it exists?") % (
+                "Are you sure it exists? Reason: %s") % (
                 pb_id, project),
                 color="red",
                 background="lightgray")
-            print ""
         else:
             reclient.utils.less_file(path.name)
 

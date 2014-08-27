@@ -8,8 +8,8 @@
 
 Name: re-client
 Summary: Client utility for the Release Engine
-Version: 0.0.3
-Release: 3%{?dist}
+Version: 0.0.4
+Release: 1%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -20,6 +20,7 @@ BuildArch: noarch
 BuildRequires: python2-devel
 Requires: python-pymongo
 Requires: python-requests
+Requires: python-requests-kerberos
 Requires: python-pika
 # BuildRequires: python-nose
 # %{?el6:BuildRequires: python-unittest2}
@@ -49,6 +50,9 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Mon Aug 25 2014 Steve Milner <stevem@gnulinux.net> - 0.0.4-1
+- Now can use authentication.
+
 * Fri Jul 18 2014 Ryan Cook <rcook@redhat.com> - 0.0.3-3
 - Re-client on first run does not prompt for port
 

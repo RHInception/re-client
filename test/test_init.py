@@ -35,6 +35,9 @@ reclient_config = {
     'username': pwd.getpwuid(os.getuid())[0]
 }
 
+AUTH = (pwd.getpwuid(os.getuid())[0], 'password')
+
+
 
 class TestInit(TestCase):
 
@@ -43,7 +46,9 @@ class TestInit(TestCase):
         Set up for tests.
         """
         reclient.reclient_config = reclient_config
-        self.reclient = reclient.ReClient()
+        with mock.patch('getpass.getpass') as getpass:
+            getpass.return_value = 'password'
+            self.reclient = reclient.ReClient()
 
     def test_reclient_init(self):
         """
@@ -57,13 +62,13 @@ class TestInit(TestCase):
         """
         Make sure config sets the right items when called.
         """
-        self.reclient._config()
-        assert self.reclient.endpoint == "%s/api/%s/" % (BASEURL, VERSION)
-        assert self.reclient.connector.baseurl == self.reclient.endpoint
-        print pwd.getpwuid(os.getuid())[0]
-        # FIXME
-        assert self.reclient.connector.auth == (
-            pwd.getpwuid(os.getuid())[0], 'foobar')
+        with mock.patch('getpass.getpass') as getpass:
+            getpass.return_value = 'password'
+            self.reclient._config()
+            assert self.reclient.endpoint == "%s/api/%s/" % (BASEURL, VERSION)
+            assert self.reclient.connector.baseurl == self.reclient.endpoint
+            print pwd.getpwuid(os.getuid())[0]
+            assert self.reclient.connector.auth == AUTH
 
     def test__get_playbook(self):
         """
@@ -78,6 +83,7 @@ class TestInit(TestCase):
                 results = self.reclient._get_playbook(PROJECT)
                 get.assert_called_once_with(
                     self.reclient.endpoint + PROJECT + '/playbook/',
+                    auth=AUTH,
                     verify=False,
                     headers=self.reclient.connector.headers)
                 assert results[0] == "item"
@@ -92,6 +98,7 @@ class TestInit(TestCase):
                 results = self.reclient._get_playbook(PROJECT, ID)
                 get.assert_called_once_with(
                     self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/",
+                    auth=AUTH,
                     verify=False,
                     headers=self.reclient.connector.headers)
                 assert results[0] == "item"
@@ -115,6 +122,7 @@ class TestInit(TestCase):
             put.assert_called_once_with(
                 self.reclient.endpoint + PROJECT + '/playbook/',
                 mock.ANY,  # Using ANY as we can't anticipate the fileid
+                auth=AUTH,
                 verify=False,
                 headers=self.reclient.connector.headers)
             assert results == put()
@@ -133,6 +141,7 @@ class TestInit(TestCase):
             post.assert_called_once_with(
                 self.reclient.endpoint + PROJECT + '/playbook/' + ID + '/',
                 mock.ANY,  # Using ANY as we can't anticipate the fileid
+                auth=AUTH,
                 verify=False,
                 headers=self.reclient.connector.headers)
             assert results == post()
@@ -166,6 +175,7 @@ class TestInit(TestCase):
             get.assert_called_once_with(
                 self.reclient.endpoint + 'playbooks/',
                 headers=self.reclient.connector.headers,
+                auth=AUTH,
                 verify=False)
             # And the following support calls
             assert jb.call_count == 1
@@ -230,6 +240,7 @@ class TestInit(TestCase):
             delete.assert_called_once_with(
                 self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/",
                 verify=False,
+                auth=AUTH,
                 headers=self.reclient.connector.headers)
             # The result is simply the return data from delete
             assert result == delete()
@@ -299,6 +310,7 @@ class TestInit(TestCase):
             put.assert_called_once_with(
                 self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/",
                 {},
+                auth=AUTH,
                 verify=False,
                 headers=self.reclient.connector.headers)
             # The result is simply the return data from put
@@ -319,6 +331,7 @@ class TestInit(TestCase):
             put.assert_called_once_with(
                 self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/",
                 {},
+                auth=AUTH,
                 verify=False,
                 headers=self.reclient.connector.headers)
 

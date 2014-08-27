@@ -22,16 +22,24 @@ import os
 
 import mock
 
+from contextlib import nested
+from requests_kerberos import HTTPKerberosAuth
 from . import TestCase, unittest
 
 from reclient import connectors
 
+
+HTTP_AUTH = ('name', 'password')
 PARAMS = {
     'baseurl': 'http://127.0.0.1/',
-    'name': 'name',
-    'password': 'password',
+    'auth': HTTP_AUTH,
 }
 
+KERB_AUTH = HTTPKerberosAuth()
+KERB_PARAMS = {
+    'baseurl': 'https://127.0.0.1/',
+    'auth': KERB_AUTH,
+}
 
 class TestConnectors(TestCase):
 
@@ -41,62 +49,120 @@ class TestConnectors(TestCase):
         """
         TestCase.setUp(self)
         self.connector = connectors.Connectors(PARAMS)
+        self.kerb_connector = connectors.Connectors(KERB_PARAMS)
 
     def test_connector_creation(self):
         """
         Verify creating the connector does what we expect.
         """
         assert self.connector.baseurl == PARAMS['baseurl']
-        assert self.connector.auth == (PARAMS['name'], PARAMS['password'])
+        assert self.connector.auth == ('name', 'password')
         assert self.connector.headers["content-type"] == "application/json"
-        basic_str = '%s:%s' % (PARAMS['name'], PARAMS['password'])
-        assert base64.decodestring(
-            self.connector.headers["Authorization"][6:]) == basic_str
+
+        assert self.kerb_connector.baseurl == KERB_PARAMS['baseurl']
+        assert self.kerb_connector.auth == KERB_AUTH
+        assert self.kerb_connector.headers["content-type"] == "application/json"
 
     def test_delete(self):
         """
         Make sure the connector uses the right delete call.
         """
-        with mock.patch('reclient.connectors.requests.delete') as delete:
+        with nested(
+                    mock.patch('reclient.connectors.requests.delete'),
+                    mock.patch('getpass.getpass')
+                ) as (delete, getpass):
+            getpass.return_value = 'password'
+
             self.connector.delete('/test')
             delete.assert_called_once_with(
                 self.connector.baseurl + '/test',
+                auth=HTTP_AUTH,
                 headers=self.connector.headers,
                 verify=False)  # TODO: Don't skip verification!!!!!!
+
+            delete.reset_mock()
+            self.kerb_connector.delete('/test')
+            delete.assert_called_once_with(
+                self.kerb_connector.baseurl + '/test',
+                auth=KERB_AUTH,
+                headers=self.kerb_connector.headers,
+                verify=False)  # TODO: Don't skip verification!!!!!!
+
+
 
     def test_get(self):
         """
         Make sure the connector uses the right get call.
         """
-        with mock.patch('reclient.connectors.requests.get') as get:
+        with nested(
+                    mock.patch('reclient.connectors.requests.get'),
+                    mock.patch('getpass.getpass')
+                ) as (get, getpass):
             self.connector.get('/test')
             get.assert_called_once_with(
                 self.connector.baseurl + '/test',
+                auth=HTTP_AUTH,
                 headers=self.connector.headers,
+                verify=False)  # TODO: Don't skip verification!!!!!!
+
+            get.reset_mock()
+            self.kerb_connector.get('/test')
+            get.assert_called_once_with(
+                self.kerb_connector.baseurl + '/test',
+                auth=KERB_AUTH,
+                headers=self.kerb_connector.headers,
                 verify=False)  # TODO: Don't skip verification!!!!!!
 
     def test_post(self):
         """
         Make sure the connector uses the right post call.
         """
-        with mock.patch('reclient.connectors.requests.post') as post:
+        with nested(
+                    mock.patch('reclient.connectors.requests.post'),
+                    mock.patch('getpass.getpass')
+                ) as (post, getpass):
             data = '{"test": "item"}'
             self.connector.post('/test', data)
             post.assert_called_once_with(
                 self.connector.baseurl + '/test',
                 data,
+                auth=HTTP_AUTH,
                 headers=self.connector.headers,
                 verify=False)  # TODO: Don't skip verification!!!!!!
+
+            post.reset_mock()
+            self.kerb_connector.post('/test', data)
+            post.assert_called_once_with(
+                self.kerb_connector.baseurl + '/test',
+                data,
+                auth=KERB_AUTH,
+                headers=self.kerb_connector.headers,
+                verify=False)  # TODO: Don't skip verification!!!!!!
+
 
     def test_put(self):
         """
         Make sure the connector uses the right put call.
         """
-        with mock.patch('reclient.connectors.requests.put') as put:
+        with nested(
+                    mock.patch('reclient.connectors.requests.put'),
+                    mock.patch('getpass.getpass')
+                ) as (put, getpass):
+
             data = '{"test": "item"}'
             self.connector.put('/test', data)
             put.assert_called_once_with(
                 self.connector.baseurl + '/test',
                 data,
+                auth=HTTP_AUTH,
                 headers=self.connector.headers,
+                verify=False)  # TODO: Don't skip verification!!!!!!
+
+            put.reset_mock()
+            self.kerb_connector.put('/test', data)
+            put.assert_called_once_with(
+                self.kerb_connector.baseurl + '/test',
+                data,
+                auth=KERB_AUTH,
+                headers=self.kerb_connector.headers,
                 verify=False)  # TODO: Don't skip verification!!!!!!
