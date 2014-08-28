@@ -171,7 +171,7 @@ existing playbook.
         except ReClientGETError:
             print colorize((
                 "Error while attempting to find '%s' for project '%s'\n"
-                "Are you sure it exists? Reason: %s") % (
+                "Are you sure it exists?") % (
                 pb_id, project),
                 color="red",
                 background="lightgray")
