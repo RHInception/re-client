@@ -19,23 +19,48 @@ import os
 from subprocess import call
 import tempfile
 import json
+import yaml
 import logging
 # import difflib
 
 out = logging.getLogger('reclient')
 
 
-def save_playbook(blob, dest):
+def serialize(blob, format):
+    """
+    Serializes a structure.
+    """
+    if format == 'json':
+        return json.dumps(blob, indent=4)
+    return yaml.safe_dump(blob)
+
+
+def deserialize(blob, format):
+    """
+    Retutns a deserialized structure.
+    """
+    if format == 'json':
+        return json.loads(blob)
+    return yaml.safe_load(blob)
+
+
+def save_playbook(blob, dest, format):
     """Save the temporary playbook, `source` at `path`"""
     with open(dest, 'w') as _dest:
         del blob['id']
-        json.dump(blob, _dest, indent=4)
+        if format == 'json':
+            json.dump(blob, _dest, indent=4)
+        else:
+            yaml.safe_dump(blob, _dest)
 
 
-def temp_json_blob(data):
+def temp_blob(data, format):
     """data is either a string or a hash. Function will 'do the right
-thing' either way"""
-    out.debug("tmp_json_blob received [%s]: %s" % (type(data), str(data)))
+thing' either way
+
+format is the format to write with.
+"""
+    out.debug("tmp_blob received [%s]: %s" % (type(data), str(data)))
     if type(data) in [unicode, str]:
         data = json.loads(data)
     elif type(data) == dict or type(data) == list:
@@ -44,9 +69,12 @@ thing' either way"""
         raise ValueError("This isn't something I can work with")
 
     tmpfile = tempfile.NamedTemporaryFile(mode='w',
-                                          suffix=".json",
+                                          suffix=".%s" % format,
                                           prefix="reclient-")
-    json.dump(data, tmpfile, indent=4)
+    if format == 'json':
+        json.dump(data, tmpfile, indent=4)
+    else:
+        yaml.safe_dump(data, tmpfile)
     tmpfile.flush()
     return tmpfile
 
@@ -56,7 +84,7 @@ thing' either way"""
 #     d = difflib.Differ()
 
 
-def edit_playbook(blob):
+def edit_playbook(blob, format):
     """Edit the playbook object 'blob'.
 
 If 'blob' is an unserialized string, then it is serialized and dumped
@@ -65,8 +93,10 @@ If 'blob' is an unserialized string, then it is serialized and dumped
 If 'blob' is a serialized hash is is dumped out (with indenting) to a
 temporary file.
 
-If 'blob' is a file object (like you would get from 'temp_json_blob')
+If 'blob' is a file object (like you would get from 'temp_blob')
 it is flush()'d.
+
+'format' is either json or yaml.
 
 Once all that is complete, an editor is opened pointing at the path to
 the temporary file. After the editor is closed the original (or
@@ -81,7 +111,7 @@ instantiated) file handle is returned."""
     if isinstance(blob, tempfile._TemporaryFileWrapper):
         blob.flush()
     else:
-        tmpfile = temp_json_blob(blob)
+        tmpfile = temp_blob(blob, format)
 
     try:
         out.debug("Editing with EDITOR=%s" % EDITOR)

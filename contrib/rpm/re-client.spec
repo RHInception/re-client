@@ -8,7 +8,7 @@
 
 Name: re-client
 Summary: Client utility for the Release Engine
-Version: 0.0.4
+Version: 0.0.5
 Release: 1%{?dist}
 
 Group: Applications/System
@@ -22,6 +22,7 @@ Requires: python-pymongo
 Requires: python-requests
 Requires: python-requests-kerberos
 Requires: python-pika
+Requires: PyYAML
 # BuildRequires: python-nose
 # %{?el6:BuildRequires: python-unittest2}
 
@@ -50,6 +51,9 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Thu Sep  4 2014 Steve Milner <stevem@gnulinux.net> - 0.0.5-1
+- JSON or YAML can now be used with the client.
+
 * Mon Aug 25 2014 Steve Milner <stevem@gnulinux.net> - 0.0.4-1
 - Now can use authentication.
 

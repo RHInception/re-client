@@ -62,7 +62,7 @@ def cmds():
 
 def repl(args):
     """Read. Evaluate. Print. Loop"""
-    rclient = RC(debug=args.debug)
+    rclient = RC(debug=args.debug, format=args.format)
     while True:
         cmds()
         try:
@@ -248,6 +248,10 @@ command line options. Launches the REPL.
                         default=None, help='Set default project')
     parser.add_argument('-i', '--id', required=False,
                         default=None, help='Set default playbook ID')
+    parser.add_argument('-f', '--format', required=False,
+                        default='yaml', choices=('yaml', 'json'),
+                        help='Set playbook format (Default: yaml)')
+
     args = parser.parse_args()
 
     out = logging.getLogger('reclient')

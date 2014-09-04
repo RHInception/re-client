@@ -17,6 +17,7 @@ Unittests.
 """
 
 import json
+import yaml
 import os
 
 import mock
@@ -28,16 +29,16 @@ from reclient import utils
 
 class TestUtils(TestCase):
 
-    def test_temp_json_blob(self):
+    def test_temp_blob(self):
         """
-        Verify temp_json_blog works as expected.
+        Verify temp_blob works as expected.
         """
 
         for good in (
                 unicode('{"test": "item"}'),  # Unicode
                 '{"test": "item"}',  # str
                 {"test": "item"}):  # dict
-            tmp_file = utils.temp_json_blob(good)
+            tmp_file = utils.temp_blob(good, 'json')
             # Make sure the file exists
             assert os.path.exists(tmp_file.name)
             # Make sure the file loads as json
@@ -45,7 +46,7 @@ class TestUtils(TestCase):
 
         # A playbook must be a dictionary, string or unicode
         for bad in (object(), 10):
-            self.assertRaises(ValueError, utils.temp_json_blob, bad)
+            self.assertRaises(ValueError, utils.temp_blob, bad, 'json')
 
     def test_edit_playbook(self):
         """
@@ -53,28 +54,28 @@ class TestUtils(TestCase):
         """
         # Call with temp file
         with mock.patch('reclient.utils.call') as utils.call:
-            tmp_file = utils.temp_json_blob({'test': 'item'})
-            result = utils.edit_playbook(tmp_file)
+            tmp_file = utils.temp_blob({'test': 'item'}, 'json')
+            result = utils.edit_playbook(tmp_file, 'json')
             assert result == tmp_file
             utils.call.assert_called_once_with(['emacs', '-nw', tmp_file.name])
 
         # Call with temp file and vim
         with mock.patch('reclient.utils.call') as utils.call:
             os.environ['EDITOR'] = 'vim'
-            tmp_file = utils.temp_json_blob({'test': 'item'})
-            result = utils.edit_playbook(tmp_file)
+            tmp_file = utils.temp_blob({'test': 'item'}, 'json')
+            result = utils.edit_playbook(tmp_file, 'json')
             assert result == tmp_file
             utils.call.assert_called_once_with(['vim', tmp_file.name])
 
         # Call with blob
         with mock.patch('reclient.utils.call') as utils.call:
-            result = utils.edit_playbook({'test': 'item'})
+            result = utils.edit_playbook({'test': 'item'}, 'json')
             utils.call.assert_callled_once_with(['emacs', '-nw', result.name])
 
         # Call with blob and vim
         with mock.patch('reclient.utils.call') as utils.call:
             os.environ['EDITOR'] = 'vim'
-            result = utils.edit_playbook({'test': 'item'})
+            result = utils.edit_playbook({'test': 'item'}, 'json')
             utils.call.assert_callled_once_with(['vim', result.name])
 
     def test_edit_playbook_editor_fallback(self):
@@ -87,7 +88,7 @@ class TestUtils(TestCase):
         with mock.patch('reclient.utils.call', m_u_c) as utils.call:
             os.environ['EDITOR'] = 'reclient_fake_editor_doesnt_exist'
             os.environ['PATH'] = ''
-            result = utils.edit_playbook({'test': 'item'})
+            result = utils.edit_playbook({'test': 'item'}, 'json')
             self.assertEqual(result, False)
 
     def test_less_file(self):
@@ -98,3 +99,22 @@ class TestUtils(TestCase):
             utils.less_file('/fake/file.txt')
             utils.call.assert_called_once_with([
                 'less', '-X', '/fake/file.txt'])
+
+    def test_serialize(self):
+        """
+        Make sure that serialization works as expected
+        """
+        data = {"test": "data"}
+        yaml_ser = utils.serialize(data, 'yaml')
+        json_ser = utils.serialize(data, 'json')
+
+        assert yaml.safe_load(yaml_ser) == json.loads(json_ser)
+
+    def test_deserialize(self):
+        """
+        Make sure that deserialization works as expected
+        """
+        data = {"test": "data"}
+        yaml_dump = utils.deserialize(yaml.safe_dump(data), 'yaml')
+        json_dump = utils.deserialize(json.dumps(data), 'json')
+        assert yaml_dump == json_dump

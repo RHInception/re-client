@@ -48,8 +48,8 @@ class TestConnectors(TestCase):
         Set up for each test.
         """
         TestCase.setUp(self)
-        self.connector = connectors.Connectors(PARAMS)
-        self.kerb_connector = connectors.Connectors(KERB_PARAMS)
+        self.connector = connectors.Connectors(PARAMS, format='yaml')
+        self.kerb_connector = connectors.Connectors(KERB_PARAMS, format='json')
 
     def test_connector_creation(self):
         """
@@ -57,11 +57,11 @@ class TestConnectors(TestCase):
         """
         assert self.connector.baseurl == PARAMS['baseurl']
         assert self.connector.auth == ('name', 'password')
-        assert self.connector.headers["content-type"] == "application/json"
+        assert self.connector.headers["content-type"] == 'text/yaml'
 
         assert self.kerb_connector.baseurl == KERB_PARAMS['baseurl']
         assert self.kerb_connector.auth == KERB_AUTH
-        assert self.kerb_connector.headers["content-type"] == "application/json"
+        assert self.kerb_connector.headers["content-type"] == 'application/json'
 
     def test_delete(self):
         """
@@ -75,7 +75,7 @@ class TestConnectors(TestCase):
 
             self.connector.delete('/test')
             delete.assert_called_once_with(
-                self.connector.baseurl + '/test',
+                self.connector.baseurl + '/test?format=yaml',
                 auth=HTTP_AUTH,
                 headers=self.connector.headers,
                 verify=False)  # TODO: Don't skip verification!!!!!!
@@ -83,11 +83,10 @@ class TestConnectors(TestCase):
             delete.reset_mock()
             self.kerb_connector.delete('/test')
             delete.assert_called_once_with(
-                self.kerb_connector.baseurl + '/test',
+                self.kerb_connector.baseurl + '/test?format=json',
                 auth=KERB_AUTH,
                 headers=self.kerb_connector.headers,
                 verify=False)  # TODO: Don't skip verification!!!!!!
-
 
 
     def test_get(self):
@@ -100,7 +99,7 @@ class TestConnectors(TestCase):
                 ) as (get, getpass):
             self.connector.get('/test')
             get.assert_called_once_with(
-                self.connector.baseurl + '/test',
+                self.connector.baseurl + '/test?format=yaml',
                 auth=HTTP_AUTH,
                 headers=self.connector.headers,
                 verify=False)  # TODO: Don't skip verification!!!!!!
@@ -108,7 +107,7 @@ class TestConnectors(TestCase):
             get.reset_mock()
             self.kerb_connector.get('/test')
             get.assert_called_once_with(
-                self.kerb_connector.baseurl + '/test',
+                self.kerb_connector.baseurl + '/test?format=json',
                 auth=KERB_AUTH,
                 headers=self.kerb_connector.headers,
                 verify=False)  # TODO: Don't skip verification!!!!!!
@@ -124,7 +123,7 @@ class TestConnectors(TestCase):
             data = '{"test": "item"}'
             self.connector.post('/test', data)
             post.assert_called_once_with(
-                self.connector.baseurl + '/test',
+                self.connector.baseurl + '/test?format=yaml',
                 data,
                 auth=HTTP_AUTH,
                 headers=self.connector.headers,
@@ -133,7 +132,7 @@ class TestConnectors(TestCase):
             post.reset_mock()
             self.kerb_connector.post('/test', data)
             post.assert_called_once_with(
-                self.kerb_connector.baseurl + '/test',
+                self.kerb_connector.baseurl + '/test?format=json',
                 data,
                 auth=KERB_AUTH,
                 headers=self.kerb_connector.headers,
@@ -152,16 +151,17 @@ class TestConnectors(TestCase):
             data = '{"test": "item"}'
             self.connector.put('/test', data)
             put.assert_called_once_with(
-                self.connector.baseurl + '/test',
+                self.connector.baseurl + '/test?format=yaml',
                 data,
+                verify=False,
                 auth=HTTP_AUTH,
-                headers=self.connector.headers,
-                verify=False)  # TODO: Don't skip verification!!!!!!
+                headers=self.connector.headers
+                )  # TODO: Don't skip verification!!!!!!
 
             put.reset_mock()
             self.kerb_connector.put('/test', data)
             put.assert_called_once_with(
-                self.kerb_connector.baseurl + '/test',
+                self.kerb_connector.baseurl + '/test?format=json',
                 data,
                 auth=KERB_AUTH,
                 headers=self.kerb_connector.headers,

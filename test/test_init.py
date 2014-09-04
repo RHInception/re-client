@@ -48,7 +48,7 @@ class TestInit(TestCase):
         reclient.reclient_config = reclient_config
         with mock.patch('getpass.getpass') as getpass:
             getpass.return_value = 'password'
-            self.reclient = reclient.ReClient()
+            self.reclient = reclient.ReClient(format='yaml')
 
     def test_reclient_init(self):
         """
@@ -77,12 +77,12 @@ class TestInit(TestCase):
         # Without an id
         with mock.patch('reclient.connectors.requests.get') as get:
             response = mock.MagicMock(status_code=200)
-            response.json.return_value = {"items": "item"}
+            response.content = '{items: item}\n'
             get.return_value = response
-            with mock.patch('reclient.utils.temp_json_blob') as jb:
+            with mock.patch('reclient.utils.temp_blob') as jb:
                 results = self.reclient._get_playbook(PROJECT)
                 get.assert_called_once_with(
-                    self.reclient.endpoint + PROJECT + '/playbook/',
+                    self.reclient.endpoint + PROJECT + '/playbook/?format=yaml',
                     auth=AUTH,
                     verify=False,
                     headers=self.reclient.connector.headers)
@@ -92,15 +92,16 @@ class TestInit(TestCase):
         # With an id
         with mock.patch('reclient.connectors.requests.get') as get:
             response = mock.MagicMock(status_code=200)
-            response.json.return_value = {"item": "item"}
+            response.content = '{item: item}\n'
             get.return_value = response
-            with mock.patch('reclient.utils.temp_json_blob') as jb:
+            with mock.patch('reclient.utils.temp_blob') as jb:
                 results = self.reclient._get_playbook(PROJECT, ID)
                 get.assert_called_once_with(
-                    self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/",
+                    self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/?format=yaml",
                     auth=AUTH,
                     verify=False,
                     headers=self.reclient.connector.headers)
+                print results
                 assert results[0] == "item"
                 assert results[1] == jb()
 
@@ -111,7 +112,7 @@ class TestInit(TestCase):
         # Without an id
         with mock.patch('reclient.connectors.requests.put') as put:
             response = mock.MagicMock(status_code=201)
-            response.json.return_value = {"items": "item"}
+            response.content = '{items: item}\n'
             put.return_value = response
 
             fp = mock.MagicMock('fp')
@@ -120,7 +121,7 @@ class TestInit(TestCase):
             results = self.reclient._send_playbook(PROJECT, fp)
 
             put.assert_called_once_with(
-                self.reclient.endpoint + PROJECT + '/playbook/',
+                self.reclient.endpoint + PROJECT + '/playbook/?format=yaml',
                 mock.ANY,  # Using ANY as we can't anticipate the fileid
                 auth=AUTH,
                 verify=False,
@@ -130,7 +131,7 @@ class TestInit(TestCase):
         # With an id
         with mock.patch('reclient.connectors.requests.post') as post:
             response = mock.MagicMock(status_code=200)
-            response.json.return_value = {"items": "item"}
+            response.content = '{item: item}\n'
             post.return_value = response
 
             fp = mock.MagicMock('fp')
@@ -139,7 +140,7 @@ class TestInit(TestCase):
             results = self.reclient._send_playbook(PROJECT, fp, ID)
 
             post.assert_called_once_with(
-                self.reclient.endpoint + PROJECT + '/playbook/' + ID + '/',
+                self.reclient.endpoint + PROJECT + '/playbook/' + ID + '/?format=yaml',
                 mock.ANY,  # Using ANY as we can't anticipate the fileid
                 auth=AUTH,
                 verify=False,
@@ -149,7 +150,7 @@ class TestInit(TestCase):
         # With unexpected response
         with mock.patch('reclient.connectors.requests.post') as post:
             response = mock.MagicMock(status_code=302)
-            response.json.return_value = {"items": "item"}
+            response.content = '{items: item}\n'
             post.return_value = response
 
             fp = mock.MagicMock('fp')
@@ -168,12 +169,18 @@ class TestInit(TestCase):
         with nested(
                 mock.patch('reclient.connectors.requests.get'),
                 mock.patch('reclient.utils.less_file'),
-                mock.patch('reclient.utils.temp_json_blob')) as (get, less_file, jb):
+                mock.patch('reclient.utils.temp_blob')) as (get, less_file, jb):
+            response = mock.MagicMock(status_code=200)
+            response.content = '{status: ok}\n'
+            get.return_value = response
+
             # There should be nothing returned
-            assert self.reclient.get_all_playbooks_ever() is None
+            all_pb_call_result = self.reclient.get_all_playbooks_ever()
+            print all_pb_call_result
+            assert all_pb_call_result is None
             # Verify the remote call
             get.assert_called_once_with(
-                self.reclient.endpoint + 'playbooks/',
+                self.reclient.endpoint + 'playbooks/?format=yaml',
                 headers=self.reclient.connector.headers,
                 auth=AUTH,
                 verify=False)
@@ -207,7 +214,9 @@ class TestInit(TestCase):
         Users should be able to edit a playbook.
         """
         # Without sending back
-        with mock.patch('reclient.ReClient._get_playbook') as get_pb:
+        with nested(
+                mock.patch('reclient.ReClient._get_playbook'),
+                mock.patch('reclient.utils.deserialize')) as (get_pb, ds):
             m_path = mock.MagicMock('path')
             m_path.name = 'test/example.json'
             get_pb.return_value = (mock.MagicMock('pb'), m_path)
@@ -217,7 +226,9 @@ class TestInit(TestCase):
                     PROJECT, ID, noop=True) is None
 
         # With sending back
-        with mock.patch('reclient.ReClient._get_playbook') as get_pb:
+        with nested(
+                mock.patch('reclient.ReClient._get_playbook'),
+                mock.patch('reclient.utils.deserialize')) as (get_pb, ds):
             m_path = mock.MagicMock('path')
             m_path.name = 'test/example.json'
             get_pb.return_value = (mock.MagicMock('pb'), m_path)
@@ -238,7 +249,7 @@ class TestInit(TestCase):
             result = self.reclient.delete_playbook(PROJECT, ID)
 
             delete.assert_called_once_with(
-                self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/",
+                self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/?format=yaml",
                 verify=False,
                 auth=AUTH,
                 headers=self.reclient.connector.headers)
@@ -252,7 +263,7 @@ class TestInit(TestCase):
         with nested(
                 mock.patch('reclient.utils.edit_playbook'),
                 mock.patch('reclient.ReClient._send_playbook'),
-                mock.patch('reclient.utils.temp_json_blob')) as (edit_pb, send_pb, jb):
+                mock.patch('reclient.utils.temp_blob')) as (edit_pb, send_pb, jb):
             self.reclient.new_playbook(PROJECT)
             # These items must be called to make a new playbook
             assert jb.call_count == 1
@@ -282,13 +293,10 @@ class TestInit(TestCase):
                 mock.patch('reclient.ReClient._send_playbook'),
                 mock.patch('reclient.open', create=True),
                 mock.patch('reclient.colorize')) as (send_pb, mock_open, color):
-            source_path = '/tmp/fake_pb.json'
-            mock_json = mock.Mock(return_value={'id': '1234567890'})
-            send_pb.return_value.json = mock_json
-            self.reclient.upload_playbook(source_path, PROJECT)
+            source_path = '/tmp/fake_pb.yaml'
+            send_pb.return_value.content = '{id: 1234567890}'
 
-            # The result from send playbook has it's .json method called
-            assert mock_json.call_count == 1
+            self.reclient.upload_playbook(source_path, PROJECT)
 
             # colorize is called twice, once to highlight the pb id,
             # and once to print the success message
@@ -300,15 +308,14 @@ class TestInit(TestCase):
         """
         We can start a new deployment correctly
         """
+
         with mock.patch('reclient.connectors.requests.put') as put:
             response = mock.MagicMock(status_code=201)
-            response.json = mock.MagicMock(spec=dict)
-            response.json.return_value = {u'status': u'created'}
-
+            response.content = '{"status": "created"}'
             put.return_value = response
             result = self.reclient.start_deployment(PROJECT, ID)
             put.assert_called_once_with(
-                self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/",
+                self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/?format=yaml",
                 {},
                 auth=AUTH,
                 verify=False,
@@ -317,22 +324,17 @@ class TestInit(TestCase):
             assert result == put()
 
         with mock.patch('reclient.connectors.requests.put') as put:
-            print "Testing with errors"
             response = mock.MagicMock(status_code=403)
-            response.json = mock.MagicMock(spec=dict)
-            response.json.return_value = {
-                u'status': u'error',
-                u'message': u'Faked a bad deployment'
-            }
+            response.content = '{"status": "error", "message": "Faked a bad deployment"}'
 
             put.return_value = response
 
             result = self.reclient.start_deployment(PROJECT, ID)
             put.assert_called_once_with(
-                self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/",
+                self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/?format=yaml",
                 {},
                 auth=AUTH,
                 verify=False,
                 headers=self.reclient.connector.headers)
-
+            print result
             assert result == False

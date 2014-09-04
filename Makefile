@@ -54,7 +54,7 @@ tests: unittests pep8 pyflakes
 	:
 
 coverage:
-	nosetests -v --with-cover --cover-min-percentage=80 --cover-package=$(SHORTNAME) --cover-html test/
+	EDITOR=emacs nosetests -v --with-cover --cover-min-percentage=80 --cover-package=$(SHORTNAME) --cover-html test/
 
 unittests:
 	@echo "#############################################"

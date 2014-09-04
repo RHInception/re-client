@@ -36,10 +36,11 @@ reclient_config = {}
 
 
 class ReClient(object):
-    def __init__(self, version='v0', debug=1):
+    def __init__(self, version='v0', debug=1, format='yaml'):
         self.v = version
         self.debug = debug
         self.baseurl = reclient_config['baseurl']
+        self.format = format
         self._config()
 
     def _config(self):
@@ -50,13 +51,15 @@ class ReClient(object):
             self.connector = Connectors({
                 "auth": HTTPKerberosAuth(mutual_authentication=OPTIONAL),
                 "baseurl": self.endpoint,
-            })
+            },
+                format=self.format)
         else:
             out.debug('Using HTTPAuth per configuration.')
             self.connector = Connectors({
                 "auth": (reclient_config['username'], getpass.getpass()),
                 "baseurl": self.endpoint,
-            })
+            },
+                format=self.format)
 
     def _get_playbook(self, project, pb_id=None):
         """project - name of the project to search for playbook with id
@@ -77,10 +80,10 @@ written out to.
 
         result = self.connector.get(suffix)
         if result.status_code == 200:
-            pb_blob = result.json()[key]
-
+            pb_blob = reclient.utils.deserialize(result.content, self.format)[key]
             # Write it out to a temporary file
-            pb_fp = reclient.utils.temp_json_blob(pb_blob)
+            pb_fp = reclient.utils.temp_blob(pb_blob, self.format)
+
             return (pb_blob, pb_fp)
         else:
             raise ReClientGETError(result)
@@ -99,13 +102,15 @@ existing playbook.
             print "Updating an existing playbook"
             suffix = "%s/playbook/%s/" % (project, pb_id)
             with open(pb_fp.name, 'r') as pb_open:
-                result = self.connector.post(suffix, data=pb_open)
+                result = self.connector.post(
+                    suffix, data=pb_open)
         else:
             # NET-NEW
             print "Sending a new playbook"
             suffix = "%s/playbook/" % project
             with open(pb_fp.name, 'r') as pb_open:
-                result = self.connector.put(suffix, data=pb_open)
+                result = self.connector.put(
+                    suffix, data=pb_open)
 
         code = result.status_code
         # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
@@ -120,7 +125,6 @@ existing playbook.
                 code)
             raise ReClientSendError(result)
 
-        print result.text
         return result
 
     def get_all_playbooks_ever(self):
@@ -128,7 +132,7 @@ existing playbook.
         suffix = "playbooks/"
         result = self.connector.get(suffix)
         try:
-            response_msg = result.json()
+            response_msg = reclient.utils.deserialize(result.content, self.format)
             if response_msg['status'] == 'error':
                 print colorize(
                     "Error while fetching all playbooks", color="red",
@@ -140,7 +144,7 @@ existing playbook.
         except Exception:
             return False
         else:
-            view_file = reclient.utils.temp_json_blob(result.json())
+            view_file = reclient.utils.temp_blob(result, self.format)
             reclient.utils.less_file(view_file.name)
 
     def get_all_playbooks(self, project):
@@ -150,7 +154,7 @@ existing playbook.
         try:
             (path, pb_fp) = self._get_playbook(project)
         except ReClientGETError, e:
-            response_msg = e.args[0].json()
+            response_msg = reclient.utils.deserialize(e.args[0], self.format)
             print colorize("Error while fetching playbooks for %s:" % project,
                            color="red",
                            background="lightgray")
@@ -182,7 +186,7 @@ existing playbook.
         try:
             (pb, path) = self._get_playbook(project, pb_id)
         except ReClientGETError, rcge:
-            response_msg = rcge.args[0].json()
+            response_msg = reclient.utils.deserialize(rcge.args[0].content, 'json')
             print colorize("Error while fetching playbooks for %s:" % project,
                            color="red",
                            background="lightgray")
@@ -193,7 +197,7 @@ existing playbook.
                 color="red", background="lightgray")
             return False
 
-        pb_fp = reclient.utils.edit_playbook(path)
+        pb_fp = reclient.utils.edit_playbook(path, self.format)
         while True:
             if noop:
                 send_back = 'n'
@@ -239,7 +243,7 @@ existing playbook.
     def upload_playbook(self, source_path, project):
         with open(source_path, 'r') as _source:
             result = self._send_playbook(project, _source)
-        _result = result.json()
+        _result = reclient.utils.deserialize(result.content, self.format)
         _id = colorize(str(_result['id']), color="yellow")
         print colorize(
             "Success: Playbook uploaded. ID: %s" % (
@@ -254,14 +258,15 @@ existing playbook.
     def start_deployment(self, project, pb_id):
         suffix = "%s/playbook/%s/deployment/" % (
             project, pb_id)
+
         result = self.connector.put(suffix)
 
         try:
-            _status = result.json().get('status')
+            _status = reclient.utils.deserialize(result.content, 'json').get('status')
             if _status == 'error':
                 raise ReClientDeployError(result)
         except ReClientDeployError, rcde:
-            response_msg = rcde.args[0].json()
+            response_msg = reclient.utils.deserialize(rcde.args[0].content, 'json')
             print colorize("Error while fetching playbooks for %s:" % project,
                            color="red",
                            background="lightgray")
@@ -275,6 +280,7 @@ existing playbook.
             print colorize("Unknown error while starting deployment: %s" %
                            (str(e)),
                            color="red")
+            raise e
         else:
             return result
 
@@ -290,8 +296,8 @@ existing playbook.
             "group": "",
             "name": ""
         }
-        pb_fp = reclient.utils.temp_json_blob(pb)
-        reclient.utils.edit_playbook(pb_fp)
+        pb_fp = reclient.utils.temp_blob(pb, self.format)
+        reclient.utils.edit_playbook(pb_fp, self.format)
         self._send_playbook(project, pb_fp)
 
 
