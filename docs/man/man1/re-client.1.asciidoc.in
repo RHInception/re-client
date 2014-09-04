@@ -1,7 +1,7 @@
 re-client(1)
 ==========
 :man source:   Release Engine Client
-:man version:  0.0.4
+:man version:  0.0.5
 :man manual:   Release Engine
 
 NAME
@@ -31,6 +31,8 @@ Set default 'PROJECT'
 *-i* 'ID', *--id*='ID'::
 Set default playbook 'ID'
 
+*-f* 'yaml/json', *--format*='yaml/json'::
+Define the format to use. Default: yaml
 
 COMMANDS
 --------
