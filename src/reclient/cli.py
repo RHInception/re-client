@@ -194,8 +194,18 @@ def first_time_setup(out):
     config_hostname = raw_input("HOSTNAME: ")
 
     out.info("* What is the port of your re-rest endpoint?")
-    config_port = int(raw_input("PORT: "))
+    _port = 443
+    out.info("* Press enter to accept https as the default: %s" % (
+        _port))
 
+    input_port = raw_input("Port: ")
+
+    if input_port.strip() == "":
+        config_port = _port
+    else:
+        config_port = int(input_port)
+
+    print "Port is %s" % config_port
     out.info("* What is the name you use to authenticate with?")
     _username = pwd.getpwuid(os.getuid())[0]
     out.info("* Press enter to accept the default: %s" % (
@@ -218,6 +228,11 @@ def first_time_setup(out):
         if config_port == 443:
             _new_config = {
                 "baseurl": "https://" + config_hostname,
+                "username": config_username
+            }
+        elif config_port == 80:
+            _new_config = {
+                "baseurl": "http://" + config_hostname,
                 "username": config_username
             }
         else:

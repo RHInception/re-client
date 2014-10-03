@@ -9,7 +9,7 @@
 Name: re-client
 Summary: Client utility for the Release Engine
 Version: 0.0.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -51,6 +51,9 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Thu Oct  10 2014 Ryan Cook <rcook@redhat.com> - 0.0.5-2
+- Change of port request
+
 * Thu Sep  4 2014 Steve Milner <stevem@gnulinux.net> - 0.0.5-1
 - JSON or YAML can now be used with the client.
 
