@@ -9,7 +9,7 @@
 Name: re-client
 Summary: Client utility for the Release Engine
 Version: 0.0.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -51,6 +51,9 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Wed Jan  7 2015 Tim Bielawa <tbielawa@redhat.com> - 0.0.6-2
+- Use python distutils to create cli script instead of writing our own
+
 * Wed Jan  7 2015 Tim Bielawa <tbielawa@redhat.com> - 0.0.6-1
 - Add a yes/no prompt to the delete playbook action. Closes US49419
 

@@ -17,7 +17,12 @@
 import os
 import sys
 
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    import warnings
+    warnings.warn('No setuptools. Script creation will be skipped.')
+    from distutils.core import setup
 
 setup(
     name='re-client',
@@ -31,7 +36,9 @@ setup(
         'reclient': 'src/reclient'
     },
     packages=['reclient'],
-    scripts=[
-        'bin/re-client',
-    ]
+    entry_points={
+        'console_scripts': [
+            're-client = reclient.cli:cli',
+        ],
+    }
 )
