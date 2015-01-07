@@ -2,12 +2,12 @@
 .\"     Title: re-client
 .\"    Author: [see the "AUTHOR" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 09/22/2014
+.\"      Date: 01/07/2015
 .\"    Manual: Release Engine
 .\"    Source: Release Engine Client 0.0.5
 .\"  Language: English
 .\"
-.TH "RE\-CLIENT" "1" "09/22/2014" "Release Engine Client 0\&.0\&." "Release Engine"
+.TH "RE\-CLIENT" "1" "01/07/2015" "Release Engine Client 0\&.0\&." "Release Engine"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -86,13 +86,14 @@ Launching \fBre\-client\fR brings you into a command prompt\&. There are several
 .sp
 The \fBre\-client\fR prompt is \fBreadline\fR enabled\&. This means it supports line editing and command history if your platform has \fBreadline\fR support\&.
 .sp
-The \fIGet\fR commands display the requested documents in \fBless\fR\&. The \fIUpdate\fR and \fICreate\fR commands launch an editor\&. If \fBEDITOR\fR is not defined in your shell the editor defaults to \fBemacs\fR\&. You can set this permenantly to something else by exporting \fBEDITOR\fR in your shell rc file:
+The \fIGet\fR commands display the requested documents in \fBless\fR\&. The \fIUpdate\fR and \fICreate\fR commands launch an editor\&. First the \fBVISUAL\fR variable is checked, followed by the \fBEDITOR\fR variable\&. If neither is defined in your environment then the selected editor defaults to \fBemacs\fR\&. You can set this permenantly to something else by exporting \fBVISUAL\fR or \fBEDITOR\fR in your shell rc file:
 .sp
 .if n \{\
 .RS 4
 .\}
 .nf
 # ~/\&.bashrc
+export VISUAL=nano
 export EDITOR=nano
 .fi
 .if n \{\
@@ -113,9 +114,16 @@ reclient configuration file
 .RE
 .SH "ENVIRONMENT VARIABLES"
 .PP
-\fBEDITOR\fR
+\fBVISUAL\fR
 .RS 4
 Default editor choice when updating or creating new playbooks\&.
+.RE
+.PP
+\fBEDITOR\fR
+.RS 4
+Default editor choice when updating or creating new playbooks when
+\fBVISUAL\fR
+is not defined\&.
 .RE
 .SH "COPYRIGHT"
 .sp

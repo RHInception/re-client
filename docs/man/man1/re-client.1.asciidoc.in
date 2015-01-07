@@ -54,12 +54,14 @@ line editing and command history if your platform has *readline*
 support.
 
 The 'Get' commands display the requested documents in *less*. The
-'Update' and 'Create' commands launch an editor. If *EDITOR* is not
-defined in your shell the editor defaults to *emacs*. You can set
-this permenantly to something else by exporting *EDITOR* in your shell
-rc file:
+'Update' and 'Create' commands launch an editor. First the *VISUAL*
+variable is checked, followed by the *EDITOR* variable. If neither is
+defined in your environment then the selected editor defaults to
+*emacs*. You can set this permenantly to something else by exporting
+*VISUAL* or *EDITOR* in your shell rc file:
 
     # ~/.bashrc
+    export VISUAL=nano
     export EDITOR=nano
 
 
@@ -83,8 +85,12 @@ reclient configuration file
 
 ENVIRONMENT VARIABLES
 ---------------------
-*EDITOR*::
+*VISUAL*::
 Default editor choice when updating or creating new playbooks.
+
+*EDITOR*::
+Default editor choice when updating or creating new playbooks when
+*VISUAL* is not defined.
 
 
 COPYRIGHT

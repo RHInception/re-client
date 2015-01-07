@@ -125,7 +125,11 @@ it is flush()'d.
 Once all that is complete, an editor is opened pointing at the path to
 the temporary file. After the editor is closed the original (or
 instantiated) file handle is returned."""
-    EDITOR = os.environ.get('EDITOR', 'emacs')
+    VISUAL = os.environ.get('VISUAL', None)
+    if VISUAL is None:
+        EDITOR = os.environ.get('EDITOR', 'emacs')
+    else:
+        EDITOR = VISUAL
     callcmd = [EDITOR]
     tmpfile = blob
 

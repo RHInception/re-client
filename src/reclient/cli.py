@@ -294,3 +294,6 @@ command line options. Launches the REPL.
     print colorize(banner, color="green")
 
     repl(args)
+
+if __name__ == '__main__':
+    cli()
