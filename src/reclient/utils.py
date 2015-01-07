@@ -26,6 +26,30 @@ import logging
 out = logging.getLogger('reclient')
 
 
+def cooked_input(msg=""):  # pragma: no cover
+    """We need this to test user prompt"""
+    return raw_input(msg)
+
+
+def user_prompt_yes_no(prompt_str=""):
+    """Simple re-useable prompt for action confirmation. Adds [y/n]
+    suffix automatically.
+
+    Returns True if Yes, False if No
+    """
+    ret = None
+    while ret is None:
+        ans = cooked_input(prompt_str + "[y/n]: ")
+        if (ans == 'y') or (ans == 'Y'):
+            ret = True
+        elif (ans == 'n') or (ans == 'N'):
+            ret = False
+        else:
+            continue
+
+    return ret
+
+
 def serialize(blob, format):
     """
     Serializes a structure.

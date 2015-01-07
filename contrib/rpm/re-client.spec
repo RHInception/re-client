@@ -8,8 +8,8 @@
 
 Name: re-client
 Summary: Client utility for the Release Engine
-Version: 0.0.5
-Release: 2%{?dist}
+Version: 0.0.6
+Release: 1%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -51,6 +51,9 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Wed Jan  7 2015 Tim Bielawa <tbielawa@redhat.com> - 0.0.6-1
+- Add a yes/no prompt to the delete playbook action. Closes US49419
+
 * Thu Oct  10 2014 Ryan Cook <rcook@redhat.com> - 0.0.5-2
 - Change of port request
 

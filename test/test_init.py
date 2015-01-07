@@ -209,10 +209,13 @@ class TestInit(TestCase):
             with mock.patch('reclient.utils.less_file') as less_file:
                 assert less_file.call_count == 0
 
-    def test_edit_playbook(self):
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_edit_playbook(self, cooked_input):
         """
         Users should be able to edit a playbook.
         """
+        cooked_input.return_value = 'n'
         # Without sending back
         with nested(
                 mock.patch('reclient.ReClient._get_playbook'),
@@ -223,9 +226,10 @@ class TestInit(TestCase):
             with mock.patch('reclient.utils.edit_playbook') as edit_pb:
                 # Nothing is returned
                 assert self.reclient.edit_playbook(
-                    PROJECT, ID, noop=True) is None
+                    PROJECT, ID) is None
 
         # With sending back
+        cooked_input.return_value = 'y'
         with nested(
                 mock.patch('reclient.ReClient._get_playbook'),
                 mock.patch('reclient.utils.deserialize')) as (get_pb, ds):
@@ -235,14 +239,16 @@ class TestInit(TestCase):
             with mock.patch('reclient.utils.edit_playbook') as edit_pb:
                 with mock.patch('reclient.ReClient._send_playbook') as send_pb:
                     result = self.reclient.edit_playbook(
-                        PROJECT, ID, noop=False)
+                        PROJECT, ID)
                     # The result should be from the call of _send_playbook
                     assert result == send_pb()
 
-    def test_delete_playbook(self):
+    @mock.patch("reclient.utils.cooked_input")
+    def test_delete_playbook_confirmed(self, user_prompt):
         """
-        Users should be able to delete a playbook.
+        Users should be able to delete a playbook if they confirm it
         """
+        user_prompt.return_value = "y"
         with mock.patch('reclient.connectors.requests.delete') as delete:
             response = mock.MagicMock(status_code=410)
             delete.return_value = response
@@ -255,6 +261,16 @@ class TestInit(TestCase):
                 headers=self.reclient.connector.headers)
             # The result is simply the return data from delete
             assert result == delete()
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_delete_playbook_not_confirmed(self, user_prompt):
+        """
+        Users should not delete a playbook if they don't confirm it
+        """
+        user_prompt.return_value = "n"
+        with mock.patch('reclient.connectors.requests.delete') as delete:
+            result = self.reclient.delete_playbook(PROJECT, ID)
+            self.assertEqual(result, None)
 
     def test_new_playbook(self):
         """

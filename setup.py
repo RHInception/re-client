@@ -21,7 +21,7 @@ from distutils.core import setup
 
 setup(
     name='re-client',
-    version='0.0.5',
+    version='0.0.6',
     description='Release Engine Client Utilities',
     author='See AUTHORS file',
     author_email='inception@redhat.com',

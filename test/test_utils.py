@@ -118,3 +118,49 @@ class TestUtils(TestCase):
         yaml_dump = utils.deserialize(yaml.safe_dump(data), 'yaml')
         json_dump = utils.deserialize(json.dumps(data), 'json')
         assert yaml_dump == json_dump
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_user_prompt_yes_no_YES(self, cooked_input):
+        """
+        Test that the confirmation prompt works with an initial yes response
+        """
+        cooked_input.return_value = 'y'
+        self.assertEqual(utils.user_prompt_yes_no(), True)
+        cooked_input.return_value = 'Y'
+        self.assertEqual(utils.user_prompt_yes_no(), True)
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_user_prompt_yes_no_NO(self, cooked_input):
+        """
+        Test that the confirmation prompt works with an initial no response
+        """
+        cooked_input.return_value = 'n'
+        self.assertEqual(utils.user_prompt_yes_no(), False)
+        cooked_input.return_value = 'N'
+        self.assertEqual(utils.user_prompt_yes_no(), False)
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_user_prompt_yes_no_Invalid_then_Yes(self, cooked_input):
+        """
+        Test that the confirmation prompt works for Yes after an initial invalid response
+        """
+        returns = ["yesyesyes", "Y"]
+        def side_effect(*args, **kwargs):
+            return returns.pop(0)
+
+        cooked_input.side_effect = side_effect
+        self.assertEqual(utils.user_prompt_yes_no(), True)
+        self.assertEqual(cooked_input.call_count, 2)
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_user_prompt_yes_no_Invalid_then_No(self, cooked_input):
+        """
+        Test that the confirmation prompt works for No after an initial invalid response
+        """
+        returns = ["nonono", "N"]
+        def side_effect(*args, **kwargs):
+            return returns.pop(0)
+
+        cooked_input.side_effect = side_effect
+        self.assertEqual(utils.user_prompt_yes_no(), False)
+        self.assertEqual(cooked_input.call_count, 2)

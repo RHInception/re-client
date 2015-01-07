@@ -182,7 +182,7 @@ existing playbook.
         else:
             reclient.utils.less_file(path.name)
 
-    def edit_playbook(self, project, pb_id, noop=None):
+    def edit_playbook(self, project, pb_id):
         try:
             (pb, path) = self._get_playbook(project, pb_id)
         except ReClientGETError, rcge:
@@ -198,37 +198,25 @@ existing playbook.
             return False
 
         pb_fp = reclient.utils.edit_playbook(path, self.format)
-        while True:
-            if noop:
-                send_back = 'n'
-            elif not noop:
-                send_back = 'y'
-            else:
-                send_back = input("Upload [Y/n]? ")
+        send_back = reclient.utils.user_prompt_yes_no("Upload?")
 
-            if send_back.lower() == 'y' or send_back.strip() == '':
-                try:
-                    result = self._send_playbook(project, pb_fp, pb_id)
-                except IOError, ioe:
-                    raise ioe
-                except ReClientSendError, rcse:
-                    print "Error while sending updated playbook: %s" % (
-                        str(rcse))
-                else:
-                    print colorize("Updated playbook for %s:" % project,
-                                   color="green")
-                    return result
-            # elif send_back.lower() == 'd':
-            #     orig = reclient.utils.temp_json_blob(pb)
-            #     reclient.utils.differ(orig, pb_fp)
-            elif send_back.lower() == 'n':
-                print colorize("Not sending back. Playbook will be saved in %s until this program is closed." % (
-                    pb_fp.name),
-                    color="yellow")
-                return
+        if send_back:
+            try:
+                result = self._send_playbook(project, pb_fp, pb_id)
+            except IOError, ioe:
+                raise ioe
+            except ReClientSendError, rcse:
+                print "Error while sending updated playbook: %s" % (
+                    str(rcse))
             else:
-                # You entered in garbage. Start over...
-                pass
+                print colorize("Updated playbook for %s:" % project,
+                               color="green")
+                return result
+        else:
+            print colorize("Not sending back. Playbook will be saved in %s until this program is closed." % (
+                pb_fp.name),
+                color="yellow")
+            return
 
     def download_playbook(self, save_path, project, pb_id):
         (pb, path) = self._get_playbook(project, pb_id)
@@ -251,9 +239,12 @@ existing playbook.
             color="green")
 
     def delete_playbook(self, project, pb_id):
-        suffix = "%s/playbook/%s/" % (project, pb_id)
-        result = self.connector.delete(suffix)
-        return result
+        if reclient.utils.user_prompt_yes_no("Confirm Delete Playbook"):
+            suffix = "%s/playbook/%s/" % (project, pb_id)
+            result = self.connector.delete(suffix)
+            return result
+        else:
+            return None
 
     def start_deployment(self, project, pb_id):
         suffix = "%s/playbook/%s/deployment/" % (
