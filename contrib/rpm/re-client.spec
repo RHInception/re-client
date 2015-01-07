@@ -9,7 +9,7 @@
 Name: re-client
 Summary: Client utility for the Release Engine
 Version: 0.0.6
-Release: 3%{?dist}
+Release: 4%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -17,7 +17,7 @@ Source0: %{name}-%{version}.tar.gz
 Url: https://github.com/rhinception/re-client
 
 BuildArch: noarch
-BuildRequires: python2-devel
+BuildRequires: python2-devel, python-setuptools
 Requires: python-pymongo
 Requires: python-requests
 Requires: python-requests-kerberos
@@ -51,6 +51,9 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Wed Jan  7 2015 Tim Bielawa <tbielawa@redhat.com> - 0.0.6-4
+- Add python-setuptools to build requires
+
 * Wed Jan  7 2015 Tim Bielawa <tbielawa@redhat.com> - 0.0.6-3
 - re-client now respects the VISUAL env variable as well
 
