@@ -16,6 +16,7 @@
 
 import getpass
 import logging
+import json
 
 import reclient.utils
 
@@ -250,7 +251,19 @@ existing playbook.
         suffix = "%s/playbook/%s/deployment/" % (
             project, pb_id)
 
-        result = self.connector.put(suffix)
+        print colorize("Dynamic Arguments. Finish/skip by entering an empty key name",
+                       color="green")
+        dargs = reclient.utils.read_dynamic_args()
+
+        if dargs != {}:
+            print colorize("Going to begin deployment with the following dynamic args",
+                           color="green")
+            print reclient.utils.dynamic_args_table(dargs)
+
+        if reclient.utils.user_prompt_yes_no("Run deployment? "):
+            result = self.connector.put(suffix, data=json.dumps(dargs))
+        else:
+            return False
 
         try:
             _status = reclient.utils.deserialize(result.content, 'json').get('status')
@@ -267,7 +280,7 @@ existing playbook.
                     response_msg['message']),
                 color="red", background="lightgray")
             return False
-        except Exception, e:
+        except Exception, e:  # pragma: no cover
             print colorize("Unknown error while starting deployment: %s" %
                            (str(e)),
                            color="red")

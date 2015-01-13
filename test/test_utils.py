@@ -61,6 +61,7 @@ class TestUtils(TestCase):
 
         # Call with temp file and vim
         with mock.patch('reclient.utils.call') as utils.call:
+            os.environ['VISUAL'] = 'vim'
             os.environ['EDITOR'] = 'vim'
             tmp_file = utils.temp_blob({'test': 'item'}, 'json')
             result = utils.edit_playbook(tmp_file, 'json')
@@ -74,6 +75,7 @@ class TestUtils(TestCase):
 
         # Call with blob and vim
         with mock.patch('reclient.utils.call') as utils.call:
+            os.environ['VISUAL'] = 'vim'
             os.environ['EDITOR'] = 'vim'
             result = utils.edit_playbook({'test': 'item'}, 'json')
             utils.call.assert_callled_once_with(['vim', result.name])
@@ -82,6 +84,7 @@ class TestUtils(TestCase):
         """
         Fall-back logic works as expected when selecting editor
         """
+        del os.environ['VISUAL']
         del os.environ['EDITOR']
 
         m_u_c = mock.Mock(side_effect=OSError)
@@ -164,3 +167,62 @@ class TestUtils(TestCase):
         cooked_input.side_effect = side_effect
         self.assertEqual(utils.user_prompt_yes_no(), False)
         self.assertEqual(cooked_input.call_count, 2)
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_read_dynamic_args(self, cooked_input):
+        """
+        Verify the dynamic args prompt finishes if an arg name is empty
+        """
+        cooked_input.return_value = ""
+        self.assertEqual(utils.read_dynamic_args(), {})
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_read_dynamic_args_one_value_set(self, cooked_input):
+        """
+        Verify the dynamic args prompt can handle a set of values
+        """
+        returns = ["foo", "bar", ""]
+        def side_effect(*args, **kwargs):
+            return returns.pop(0)
+
+        cooked_input.side_effect = side_effect
+        self.assertEqual(utils.read_dynamic_args(), {"foo": "bar"})
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_read_dynamic_args_one_value_set_with_int_value(self, cooked_input):
+        """
+        Verify the dynamic args prompt can handle a set of values with an int value
+        """
+        returns = ["foo", 1, ""]
+        def side_effect(*args, **kwargs):
+            return returns.pop(0)
+
+        cooked_input.side_effect = side_effect
+        self.assertEqual(utils.read_dynamic_args(), {"foo": 1})
+
+    def test_dynamic_args_table(self):
+        """We can generate correct dynamic arg tables with one set of args"""
+        dargs = {"foo": "bar"}
+        expected = """+----------+-------+
+| ARG NAME | VALUE |
++----------+-------+
+|   foo    |  bar  |
++----------+-------+"""
+        self.assertEqual(str(utils.dynamic_args_table(dargs)), expected)
+
+    def test_dynamic_args_table_no_args(self):
+        """We can generate correct dynamic arg tables with no args"""
+        dargs = {}
+        expected = ""
+        self.assertEqual(str(utils.dynamic_args_table(dargs)), expected)
+
+    def test_dynamic_args_table_int_value(self):
+        """We can generate correct dynamic arg tables with an int arg value"""
+        dargs = {"foo": 1}
+        expected = """+----------+-------+
+| ARG NAME | VALUE |
++----------+-------+
+|   foo    |   1   |
++----------+-------+"""
+        self.assertEqual(str(utils.dynamic_args_table(dargs)), expected)
+

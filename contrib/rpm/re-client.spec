@@ -23,6 +23,7 @@ Requires: python-requests
 Requires: python-requests-kerberos
 Requires: python-pika
 Requires: PyYAML
+Requires: python-prettytable
 # BuildRequires: python-nose
 # %{?el6:BuildRequires: python-unittest2}
 
@@ -51,6 +52,9 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Tue Jan 13 2015 Tim Bielawa <tbielawa@redhat.com> - 0.0.6-4
+- Now with ability to send dynamic arguments in a deployment
+
 * Wed Jan  7 2015 Tim Bielawa <tbielawa@redhat.com> - 0.0.6-4
 - Add python-setuptools to build requires
 

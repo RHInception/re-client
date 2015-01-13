@@ -105,6 +105,24 @@ class TestInit(TestCase):
                 assert results[0] == "item"
                 assert results[1] == jb()
 
+        # With a bad response code
+        with self.assertRaises(reclient.ReClientGETError):
+            with mock.patch('reclient.connectors.requests.get') as get:
+                response = mock.MagicMock(status_code=500)
+                response.content = '{item: item}\n'
+                get.return_value = response
+                with mock.patch('reclient.utils.temp_blob') as jb:
+                    results = self.reclient._get_playbook(PROJECT, ID)
+                    get.assert_called_once_with(
+                        self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/?format=yaml",
+                        auth=AUTH,
+                        verify=False,
+                        headers=self.reclient.connector.headers)
+                    print results
+                    assert results[0] == "item"
+                    assert results[1] == jb()
+
+
     def test__send_playbook(self):
         """
         Verify _send_playbook follows the correct pattern to send a playbook.
@@ -320,11 +338,16 @@ class TestInit(TestCase):
 
             assert send_pb.called_once_with(PROJECT, mock_open.__enter__)
 
-    def test_start_deployment(self):
+    @mock.patch("reclient.utils.cooked_input")
+    def test_start_deployment(self, user_prompt):
         """
         We can start a new deployment correctly
         """
+        returns = ["", "Y", "", "Y"]
+        def side_effect(*args, **kwargs):
+            return returns.pop(0)
 
+        user_prompt.side_effect = side_effect
         with mock.patch('reclient.connectors.requests.put') as put:
             response = mock.MagicMock(status_code=201)
             response.content = '{"status": "created"}'
@@ -332,7 +355,7 @@ class TestInit(TestCase):
             result = self.reclient.start_deployment(PROJECT, ID)
             put.assert_called_once_with(
                 self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/?format=yaml",
-                {},
+                json.dumps({}),
                 auth=AUTH,
                 verify=False,
                 headers=self.reclient.connector.headers)
@@ -348,9 +371,52 @@ class TestInit(TestCase):
             result = self.reclient.start_deployment(PROJECT, ID)
             put.assert_called_once_with(
                 self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/?format=yaml",
-                {},
+                json.dumps({}),
                 auth=AUTH,
                 verify=False,
                 headers=self.reclient.connector.headers)
             print result
+            assert result == False
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_start_deployment_with_args(self, user_prompt):
+        """
+        We can start a new deployment correctly with dynamic args
+        """
+        returns = ["foo", "bar", "", "Y"]
+        def side_effect(*args, **kwargs):
+            return returns.pop(0)
+
+        user_prompt.side_effect = side_effect
+        with mock.patch('reclient.connectors.requests.put') as put:
+            response = mock.MagicMock(status_code=201)
+            response.content = '{"status": "created"}'
+            put.return_value = response
+            result = self.reclient.start_deployment(PROJECT, ID)
+            put.assert_called_once_with(
+                self.reclient.endpoint + PROJECT + '/playbook/' + ID + "/deployment/?format=yaml",
+                json.dumps({"foo": "bar"}),
+                auth=AUTH,
+                verify=False,
+                headers=self.reclient.connector.headers)
+            # The result is simply the return data from put
+            assert result == put()
+
+    @mock.patch("reclient.utils.cooked_input")
+    def test_start_deployment_with_args_just_kidding(self, user_prompt):
+        """
+        We can start a new deployment correctly with dynamic args and then bail out
+        """
+        returns = ["foo", "bar", "", "N"]
+        def side_effect(*args, **kwargs):
+            return returns.pop(0)
+
+        user_prompt.side_effect = side_effect
+        with mock.patch('reclient.connectors.requests.put') as put:
+            response = mock.MagicMock(status_code=201)
+            response.content = '{"status": "created"}'
+            put.return_value = response
+            result = self.reclient.start_deployment(PROJECT, ID)
+            self.assertFalse(put.called)
+            # The result is simply the return data from put
             assert result == False

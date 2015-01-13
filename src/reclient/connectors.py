@@ -22,7 +22,7 @@ out = logging.getLogger('reclient')
 
 
 class Connectors(object):
-    def __init__(self, connect_params, format, reclient_version='0.0.5'):
+    def __init__(self, connect_params, format, reclient_version='0.0.6'):
         """
         connect_params.keys() = ['auth', 'baseurl']
         """
@@ -49,7 +49,7 @@ class Connectors(object):
         out.debug("Response:")
         try:
             out.debug(response.content)
-        except Exception:
+        except Exception:  # pragma: no cover
             # Might not be loadable if it's a weird error
             out.debug(str(response.text))
         return response
@@ -65,7 +65,7 @@ class Connectors(object):
         out.debug("Response:")
         try:
             out.debug(response.content)
-        except Exception:
+        except Exception:  # pragma: no cover
             # Might not be loadable if it's a weird error
             out.debug(str(response.text))
         return response
@@ -82,7 +82,7 @@ class Connectors(object):
         out.debug("Response:")
         try:
             out.debug(response.content)
-        except Exception:
+        except Exception:  # pragma: no cover
             # Might not be loadable if it's a weird error
             out.debug(str(response.text))
         return response
@@ -99,7 +99,7 @@ class Connectors(object):
         out.debug("Response:")
         try:
             out.debug(response.content)
-        except Exception:
+        except Exception:  # pragma: no cover
             # Might not be loadable if it's a weird error
             out.debug(str(response.text))
         return response

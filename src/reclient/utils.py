@@ -21,7 +21,8 @@ import tempfile
 import json
 import yaml
 import logging
-# import difflib
+from reclient.colorize import colorize
+from prettytable import PrettyTable
 
 out = logging.getLogger('reclient')
 
@@ -102,11 +103,6 @@ format is the format to write with.
     tmpfile.flush()
     return tmpfile
 
-# def differ(orig, new):
-#     """Diff two documents and open in 'less'. 'orig' and 'new' should be
-#     file pointers"""
-#     d = difflib.Differ()
-
 
 def edit_playbook(blob, format):
     """Edit the playbook object 'blob'.
@@ -175,3 +171,42 @@ instantiated) file handle is returned."""
 
 def less_file(path):
     call(['less', '-X', path])
+
+
+def read_dynamic_args():
+    """Prompt the user for dynamic arguments
+
+An empty key name ends the prompt"""
+    dynamic_args = {}
+
+    while True:
+        argname = cooked_input(
+            colorize("Argument name: ", color="yellow"))
+
+        # An empty argument name means we're done
+        if argname == "":
+            break
+        else:
+            argvalue = cooked_input(
+                colorize("Argument value: ", color="yellow"))
+            # Properly add integer values
+            try:
+                argvalue = int(argvalue)
+            except ValueError:
+                # That was not an int, leave it alone
+                pass
+            dynamic_args[argname] = argvalue
+
+    return dynamic_args
+
+
+def dynamic_args_table(dargs):
+    """Build a nice table of collected dynamic args"""
+    t = PrettyTable(["Arg Name", "Value"])
+    t.header_style = "upper"
+    if dargs == {}:
+        return ""
+    else:
+        for k, v in dargs.iteritems():
+            t.add_row([k, v])
+    return t

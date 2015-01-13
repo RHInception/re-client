@@ -43,6 +43,14 @@ except IOError:
 
 
 def cmds():
+    # People just need a little reminder...
+    print ""
+    print colorize("   re-client is readline enabled!",
+                   color="lgreen")
+
+    print colorize("   Use up/down keys to go through history",
+                   color="lgreen")
+
     print """
 0) Get all playbooks ever (if you're authorized)
 1) Get all playbooks for a project
@@ -50,7 +58,7 @@ def cmds():
 3) Update a playbook
 4) Delete a playbook
 5) Create a new playbook
-6) Start a deployment (without any dynamic keys)
+6) Start a deployment
 7) Download a playbook
 8) Upload a playbook
 9) Quit"""

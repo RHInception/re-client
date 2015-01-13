@@ -48,7 +48,6 @@ docs: $(MANPAGES)
 
 sdist: clean
 	python setup.py sdist
-	rm -fR recore.egg-info
 
 tests: unittests pep8 pyflakes
 	:
@@ -65,7 +64,7 @@ unittests:
 clean:
 	@find . -type f -regex ".*\.py[co]$$" -delete
 	@find . -type f \( -name "*~" -or -name "#*" \) -delete
-	@rm -fR build dist rpm-build MANIFEST htmlcov .coverage recore.egg-info
+	@rm -fR build dist rpm-build MANIFEST htmlcov .coverage re_client.egg-info  re-clientenv
 
 pep8:
 	@echo "#############################################"
@@ -125,7 +124,7 @@ ci-unittests:
 	@echo "#############################################"
 	@echo "# Running Unit Tests in virtualenv"
 	@echo "#############################################"
-	. $(NAME)env/bin/activate && nosetests -v --with-cover --cover-min-percentage=80 --cover-package=$(TESTPACKAGE) test/
+	. $(NAME)env/bin/activate && nosetests -v --with-cover --cover-min-percentage=80 --cover-package=$(TESTPACKAGE) --cover-html test/
 
 ci-list-deps:
 	@echo "#############################################"
