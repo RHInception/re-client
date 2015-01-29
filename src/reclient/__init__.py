@@ -223,7 +223,7 @@ existing playbook.
         (pb, path) = self._get_playbook(project, pb_id)
         print "Playbook fetched"
         print "Saving playbook to: %s" % save_path
-        reclient.utils.save_playbook(pb, save_path)
+        reclient.utils.save_playbook(pb, save_path, self.format)
         print colorize(
             "Success: Playbook %s saved to %s" % (
                 pb_id, save_path),

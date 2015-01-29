@@ -72,7 +72,11 @@ def deserialize(blob, format):
 def save_playbook(blob, dest, format):
     """Save the temporary playbook, `source` at `path`"""
     with open(dest, 'w') as _dest:
-        del blob['id']
+        try:
+            del blob['id']
+        except KeyError:
+            # re-rest also removed that silly key for us :-)
+            pass
         if format == 'json':
             json.dump(blob, _dest, indent=4)
         else:

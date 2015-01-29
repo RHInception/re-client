@@ -317,7 +317,7 @@ class TestInit(TestCase):
             get_pb.return_value = (fake_pb, fake_tmp_file)
 
             self.reclient.download_playbook(save_path, PROJECT, ID)
-            save_pb.assert_called_once_with(fake_pb, save_path)
+            save_pb.assert_called_once_with(fake_pb, save_path, 'yaml')
 
     def test_upload_playbook(self):
         """

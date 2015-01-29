@@ -5,15 +5,16 @@
 %endif
 
 %global _pkg_name reclient
+%global _short_release 5
 
 Name: re-client
 Summary: Client utility for the Release Engine
 Version: 0.0.6
-Release: 4%{?dist}
+Release: %{_short_release}%{?dist}
 
 Group: Applications/System
 License: AGPLv3
-Source0: %{name}-%{version}.tar.gz
+Source0: %{name}-%{version}-%{_short_release}.tar.gz
 Url: https://github.com/rhinception/re-client
 
 BuildArch: noarch
@@ -35,7 +36,7 @@ reading, updating, and deleting playbooks.
 # nosetests -v
 
 %prep
-%setup -q
+%setup -q -n re-client-%{version}-%{_short_release}
 
 %build
 %{__python2} setup.py build
@@ -52,6 +53,9 @@ cp -v docs/man/man1/*.1 $RPM_BUILD_ROOT/%{_mandir}/man1/
 %doc %{_mandir}/man1/re-client.1*
 
 %changelog
+* Thu Jan 29 2015 Tim Bielawa <tbielawa@redhat.com> - 0.0.6-5
+- Fix saving playbooks
+
 * Tue Jan 13 2015 Tim Bielawa <tbielawa@redhat.com> - 0.0.6-4
 - Now with ability to send dynamic arguments in a deployment
 
